@@ -127,10 +127,13 @@ const scroll = (cursor) => {
   assert.equal(d.querySelector('main').lastElementChild.id, 'details', 'original static details remain the ending');
   assert.equal(road.querySelectorAll('.partner-shop').length, 16, 'every confirmed sponsor remains');
   assert(!d.querySelector('#the-invitation .original-invitation'), 'early invitation scene no longer shows the poster');
-  assert(d.querySelector('#the-invitation .invitation-handoff img').getAttribute('src').includes('elephant-invitation-handoff'), 'she hands him the elephant-shaped invitation');
-  assert(d.querySelector('#the-invitation').textContent.includes('એક હાથી · બે વ્યક્તિઓની એન્ટ્રી'), 'one elephant admits both friends');
+  assert(d.querySelector('#the-invitation .handoff-envelope img').getAttribute('src').includes('logo.webp'), 'she hands him the branded Garba Experience envelope');
+  assert(d.querySelector('#the-invitation').textContent.includes('પણ આપણે પહોંચીશું કેવી રીતે?'), 'the pass question extends the existing Gujarati dialogue');
+  assert(d.querySelector('#the-invitation .qr-pass-link').getAttribute('href').includes('district.in/events/the-garba-experience'), 'QR pass reveal links to District');
+  assert(d.querySelector('#the-invitation .qr-pass-link img').getAttribute('src').startsWith('data:image/png;base64,'), 'QR is embedded locally for reliable scanning');
   assert([...d.querySelectorAll('#the-invitation q [lang="en"]')].some(line => line.textContent.includes('9th October')), 'date stays in English');
-  assert(d.querySelector('#details .entry-note').textContent.includes('admits two people'), 'the final entry note repeats the same admission rule');
+  assert(d.querySelector('#details .entry-note').textContent.includes('valid passes / tickets'), 'the final entry note uses passes instead of the elephant admission rule');
+  assert.equal(d.querySelector('.masthead .header-link .control-label').textContent.trim(), 'Grab your passes', 'navbar invitation action becomes Grab your passes');
   for (const el of d.querySelectorAll("[src],link[href],a[href]")) {
     const value = el.getAttribute("src") || el.getAttribute("href");
     if (value.startsWith("#"))
@@ -277,14 +280,18 @@ const scroll = (cursor) => {
   assert.equal(handoff.dataset.handoff, 'concealed', 'invitation starts behind her back');
   assert.equal(handoff.style.getPropertyValue('--pass-visible'), '0.0000');
   scroll(2.18);
-  assert.equal(handoff.dataset.handoff, 'revealing', 'her arm reveals the elephant');
+  assert.equal(handoff.dataset.handoff, 'revealing', 'her arm reveals the branded envelope');
   scroll(2.38);
   assert.equal(handoff.dataset.handoff, 'offering', 'she offers it as he reaches');
   const offeredPass = parseFloat(handoff.style.getPropertyValue('--pass-x'));
   scroll(2.65);
-  assert.equal(handoff.dataset.handoff, 'received', 'he receives the elephant before the next scene');
-  assert(parseFloat(handoff.style.getPropertyValue('--pass-x')) < offeredPass, 'pass transfers toward the man');
+  assert.equal(handoff.dataset.handoff, 'received', 'he receives the envelope before it opens');
+  assert(parseFloat(handoff.style.getPropertyValue('--pass-x')) < offeredPass, 'envelope transfers toward the man');
   const receivedPose = handoff.getAttribute('style');
+  scroll(2.82);
+  const passReveal = d.querySelector('.pass-reveal');
+  assert(['opening','passes'].includes(passReveal.dataset.state), 'the received envelope opens into the QR pass reveal');
+  assert(Number.parseFloat(passReveal.style.getPropertyValue('--reveal')) > 0, 'envelope opening is scroll-driven');
   scroll(2.02);
   assert.equal(handoff.style.getPropertyValue('--pass-visible'), '0.0000', 'reverse scroll conceals it again');
   scroll(2.65);
@@ -358,7 +365,7 @@ const scroll = (cursor) => {
   assert(autoCard.hidden, 'leaving the sponsor scene closes the card');
   assert.equal(d.querySelectorAll('.dialogue-beat').length, 11, 'the requested eleven-line dialogue script');
   for (const scene of scenes)
-    assert(scene.querySelectorAll('.dialogue-beat').length <= (scene.id === 'the-invitation' ? 4 : 2), 'four invitation beats; at most two elsewhere');
+    assert(scene.querySelectorAll('.dialogue-beat').length <= (scene.id === 'the-invitation' ? 6 : 2), 'six invitation beats; at most two elsewhere');
   for (const line of d.querySelectorAll('.dialogue-beat q'))
     assert.equal(line.lang, 'gu', 'character dialogue remains Gujarati');
   assert(!d.querySelector('#the-plan .dialogue-track, #the-drive .dialogue-track'), 'pickup and drive tell the story visually');
