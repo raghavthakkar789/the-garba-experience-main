@@ -1449,7 +1449,7 @@ html.invitation-locked, html.invitation-locked body {
   pointer-events:none;
 }
 .still-envelope img{width:34%;height:auto;filter:none}
-.handoff-rig{opacity:var(--handoff-fade,1)}
+.handoff-rig{opacity:1}
 .handoff-rig .handoff-envelope{
   position:absolute;
   width:24.5455%;
@@ -1458,7 +1458,7 @@ html.invitation-locked, html.invitation-locked body {
   top:0;
   transform-origin:80% 97%;
   transform:translate(var(--pass-x,240%),var(--pass-y,110%)) rotate(var(--pass-turn,12deg));
-  opacity:var(--pass-visible,0);
+  opacity:calc(var(--pass-visible,0) * var(--handoff-fade,1));
   display:grid;
   place-items:center;
 }
@@ -1541,20 +1541,19 @@ html.invitation-locked, html.invitation-locked body {
   background:linear-gradient(170deg,#1a664a,#07382b);
   clip-path:polygon(0 0,100% 0,50% 100%);
   transform-origin:50% 0;
-  transform-style:preserve-3d;
-  backface-visibility:hidden;
-  transform:rotateX(calc(var(--reveal,0) * -178deg));
+  transform:scaleY(calc(1 - var(--reveal,0) * 2));
   display:grid;
   place-items:start center;
   padding-top:10%;
   will-change:transform;
+  box-shadow:0 -10px 18px #001b1440;
 }
 .pass-envelope-flap img{
   width:24%;
   height:auto;
   filter:none;
   transform:translateY(-8%);
-  backface-visibility:hidden;
+  opacity:calc(1 - var(--reveal,0));
 }
 
 /* The pass card is above the pocket once visible; opacity keeps it hidden before the flap opens. */
@@ -1562,8 +1561,8 @@ html.invitation-locked, html.invitation-locked body {
   position:absolute;
   z-index:6;
   left:50%;
-  top:16%;
-  translate:-50% calc((1 - var(--qr-rise,0)) * 38%);
+  top:14%;
+  translate:-50% calc((1 - var(--qr-rise,0)) * 22% - var(--qr-rise,0) * 44%);
   width:78%;
   min-height:128%;
   padding:clamp(14px,2.2vw,22px);
@@ -1733,8 +1732,8 @@ html.invitation-locked, html.invitation-locked body {
   margin-top:0;
 }
 .cinematic #the-invitation .pass-card{
-  top:10%;
-  width:74%;
+  top:8%;
+  width:72%;
   min-height:0;
   height:auto;
   padding:clamp(12px,1.8vw,18px);
@@ -1776,4 +1775,37 @@ html.invitation-locked, html.invitation-locked body {
   .cinematic #the-invitation .pass-reveal{padding-top:92px}
   .cinematic #the-invitation .pass-envelope{width:min(360px,38vw)}
   .cinematic #the-invitation .qr-pass-code img{width:125px}
+}
+
+
+/* Keep both characters present while only the handed envelope transitions into the reveal. */
+.cinematic #the-invitation .handoff-man,
+.cinematic #the-invitation .handoff-woman{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+.cinematic #the-invitation .handoff-man-arm,
+.cinematic #the-invitation .handoff-woman-arm{
+  opacity:1;
+}
+.cinematic #the-invitation .pass-envelope-flap{
+  overflow:visible;
+}
+.cinematic #the-invitation .pass-card{
+  max-height:min(66svh,560px);
+}
+@media(max-width:650px){
+  .cinematic #the-invitation .pass-reveal{
+    padding-top:clamp(78px,11vh,105px);
+  }
+  .cinematic #the-invitation .pass-envelope{
+    width:min(74vw,310px);
+  }
+  .cinematic #the-invitation .pass-card{
+    top:4%;
+    width:76%;
+  }
+  .cinematic #the-invitation .qr-pass-code img{
+    width:clamp(105px,31vw,138px);
+  }
 }
