@@ -3,6 +3,12 @@
   'use strict';
   const ride = document.querySelector('.journey-elephant');
   if (!ride) return;
+  const iOSWebKit = /iP(?:hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+  if (iOSWebKit) {
+    ride.classList.remove('mesh-ready');
+    ride.dataset.meshDisabled = 'ios';
+    return;
+  }
   const canvas = ride.querySelector('.elephant-mesh');
   const root = document.documentElement;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
