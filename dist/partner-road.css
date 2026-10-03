@@ -721,3 +721,119 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
   .partner-auto-card img{height:72px}
   .partner-auto-name{font-size:20px}
 }
+
+
+/* Unified partner/sponsor visual system: premium off-white cards with consistent borders. */
+.partner-shop,
+.partner-auto-card,
+.partner-dialog{
+  --partner-paper:#fbf6ea;
+  --partner-paper-2:#f6eddd;
+  --partner-border:#b98a4a;
+  --partner-border-soft:#d8b778;
+  --partner-ink:#20382c;
+}
+
+/* Shop signage */
+.shop-sign,
+.cinematic .partner-road .shop-sign{
+  background:linear-gradient(180deg,var(--partner-paper),var(--partner-paper-2)) !important;
+  color:var(--partner-ink);
+  border:2px solid var(--partner-border) !important;
+  box-shadow:
+    0 0 0 1px #f4dfb4 inset,
+    0 5px 14px #1d251c22;
+  border-radius:8px;
+  overflow:hidden;
+}
+.partner-logo-slot{
+  background:#fffaf0 !important;
+  border-right:1px solid var(--partner-border-soft) !important;
+}
+.shop-role{
+  color:#74644e !important;
+}
+.shop-name,
+.shop-lettering{
+  color:var(--partner-ink) !important;
+}
+
+/* Automatic scrolling card */
+.partner-auto-card,
+.partner-auto-card.featured-partner{
+  background:linear-gradient(180deg,var(--partner-paper),var(--partner-paper-2)) !important;
+  border:2px solid var(--partner-border) !important;
+  box-shadow:
+    0 18px 45px #08191242,
+    0 0 0 1px #f7e5bf inset !important;
+  color:var(--partner-ink);
+}
+.partner-auto-card .partner-logo-slot{
+  background:#fffaf0 !important;
+  border-right:1px solid var(--partner-border-soft) !important;
+}
+.partner-auto-role{
+  color:#75664f !important;
+}
+.partner-auto-name{
+  color:var(--partner-ink) !important;
+}
+
+/* Modal/details card */
+.partner-dialog,
+.partner-dialog.featured-partner,
+.partner-dialog.brand-details{
+  background:linear-gradient(180deg,var(--partner-paper),var(--partner-paper-2)) !important;
+  border:2px solid var(--partner-border) !important;
+  box-shadow:
+    0 24px 70px #06120f88,
+    0 0 0 1px #f7e5bf inset !important;
+  color:var(--partner-ink);
+}
+.partner-dialog .partner-logo-slot,
+.partner-dialog.brand-details .partner-logo-slot{
+  background:#fffaf0 !important;
+  border-right:1px solid var(--partner-border-soft) !important;
+  border-bottom-color:var(--partner-border-soft) !important;
+}
+#partner-dialog-role{
+  color:#75664f !important;
+}
+#partner-dialog-name{
+  color:var(--partner-ink) !important;
+}
+.partner-dialog-close{
+  color:#5e4931 !important;
+  border:1px solid #c9a264 !important;
+  background:#fff8eb !important;
+  border-radius:999px !important;
+}
+
+/* Remove per-partner pastel backgrounds while preserving layout. */
+.partner-shop:nth-child(n){
+  --card-bg:var(--partner-paper) !important;
+  --card-accent:#fffaf0 !important;
+}
+
+/* Keep special dark logo plaques readable without changing the card itself. */
+.partner-shop.featured-partner:nth-child(3) .partner-logo-slot,
+.brand-details[data-brand="ethereum"] .partner-logo-slot,
+.brand-details[data-brand="tge"] .partner-logo-slot{
+  background:#fffaf0 !important;
+}
+.brand-details[data-brand="ethereum"] #partner-dialog-logo{
+  transform:scale(1.18);
+}
+
+/* Mobile border/spacing refinement */
+@media(max-width:650px){
+  .shop-sign,
+  .cinematic .partner-road .shop-sign{
+    border-width:1.5px !important;
+    border-radius:6px;
+  }
+  .partner-auto-card,
+  .partner-dialog{
+    border-width:1.5px !important;
+  }
+}
