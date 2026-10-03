@@ -4,7 +4,7 @@
   const scene = document.querySelector("#celebration");
   if (!scene) return;
   const root = document.documentElement;
-  const iOSWebKit = /iP(?:hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+  const iOSWebKit = (/iP(?:hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) && /WebKit/.test(navigator.userAgent);
   let lastPaint = 0;
   const rings = [...scene.querySelectorAll(".garba-ring")];
   let frame = 0, previous = 0, elapsed = 0, progress = 0;
