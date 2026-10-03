@@ -129,8 +129,9 @@ const scroll = (cursor) => {
   assert(!d.querySelector('#the-invitation .original-invitation'), 'early invitation scene no longer shows the poster');
   assert(d.querySelector('#the-invitation .handoff-envelope img').getAttribute('src').includes('logo.webp'), 'she hands him the branded Garba Experience envelope');
   assert(d.querySelector('#the-invitation').textContent.includes('પણ આપણે પહોંચીશું કેવી રીતે?'), 'the pass question extends the existing Gujarati dialogue');
-  assert(d.querySelector('#the-invitation .qr-pass-link').getAttribute('href').includes('district.in/events/the-garba-experience'), 'QR pass reveal links to District');
-  assert(d.querySelector('#the-invitation .qr-pass-link img').getAttribute('src').startsWith('data:image/png;base64,'), 'QR is embedded locally for reliable scanning');
+  assert(!d.querySelector('#the-invitation .qr-pass-link'), 'QR is scan-only and not clickable');
+  assert.equal(d.querySelector('#the-invitation .qr-pass-code img').getAttribute('src'), 'assets/garba-district-qr.png', 'QR uses the dedicated local PNG asset');
+  assert(fs.existsSync(path.join(base, 'assets/garba-district-qr.png')), 'scan-only District QR asset exists');
   assert([...d.querySelectorAll('#the-invitation q [lang="en"]')].some(line => line.textContent.includes('9th October')), 'date stays in English');
   assert(d.querySelector('#details .entry-note').textContent.includes('valid passes / tickets'), 'the final entry note uses passes instead of the elephant admission rule');
   assert.equal(d.querySelector('.masthead .header-link .control-label').textContent.trim(), 'Grab your passes', 'navbar invitation action becomes Grab your passes');
