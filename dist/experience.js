@@ -98,7 +98,7 @@
       const pace = sceneHasDialogue[sceneIndex] ? 1 : scenes[sceneIndex]?.id === "partner-road" ? 2 : 3;
       const speed = (inStory ? travel / storySpan / 12 : 36) * pace;
       autoScrollPosition = Math.min(end, autoScrollPosition + speed * seconds);
-      window.scrollTo({ top: autoScrollPosition, behavior: "instant" });
+      window.scrollTo({ top: autoScrollPosition, behavior: "auto" });
     }
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   }
@@ -173,7 +173,7 @@
       ? stops.find(y => y > manualPosition + .5 && y <= next + .5)
       : stops.slice().reverse().find(y => y < manualPosition - .5 && y >= next - .5);
     manualPosition = stop === undefined ? next : stop;
-    window.scrollTo({ top: manualPosition, behavior: "instant" });
+    window.scrollTo({ top: manualPosition, behavior: "auto" });
     if (stop !== undefined) { holdDialogue(stop); return; }
     if (Math.abs(manualTarget - manualPosition) > .5) manualFrame = requestAnimationFrame(advanceManualScroll);
   }
@@ -200,7 +200,7 @@
       const stop = direction > 0 ? stops.find(y => y > manualPosition + .5 && y <= manualTarget)
         : stops.slice().reverse().find(y => y < manualPosition - .5 && y >= manualTarget);
       if (stop !== undefined) { manualTarget = stop; holdDialogue(stop); }
-      window.scrollTo({ top: manualTarget, behavior: "instant" });
+      window.scrollTo({ top: manualTarget, behavior: "auto" });
     } else if (!manualFrame) {
       manualLast = now;
       manualFrame = requestAnimationFrame(advanceManualScroll);
@@ -274,7 +274,7 @@
           ? 0.48 * ease(doorTime / 0.66)
           : 0.48 + 0.52 * ease((doorTime - 0.66) / 0.34)
         : 1 + 0.42 * clamp((elapsed - 1900) / 2800);
-      window.scrollTo({ top: from + (to - from) * progress / 1.42, behavior: "instant" });
+      window.scrollTo({ top: from + (to - from) * progress / 1.42, behavior: "auto" });
       if (elapsed < 4700) entryFrame = requestAnimationFrame(advance);
       else {
         entryFrame = 0;
@@ -493,7 +493,7 @@
       Number(elephantRide.style.getPropertyValue("--riders-opacity")) > .4) {
       target = elephantRide.querySelector(".elephant-riders");
       xPart = her ? .32 : .72;
-      yPart = .12;
+      yPart = -.12;
     } else {
       const together = scene.querySelector(".together-art");
       if (together && Number(getComputedStyle(together).opacity) > 0.5) {
@@ -613,7 +613,7 @@
         : cinematic
           ? journeyTop + (sceneStarts[previous] / storySpan) * travel
           : scenes[previous].getBoundingClientRect().top + scrollY;
-      window.scrollTo({ top, behavior: "instant" });
+      window.scrollTo({ top, behavior: "auto" });
     }
     renderScroll();
   }
@@ -628,7 +628,7 @@
       }
       root.classList.toggle("invitation-locked", !entryUnlocked);
       if (!entryUnlocked && scrollY !== journeyTop)
-        window.scrollTo({ top: journeyTop, behavior: "instant" });
+        window.scrollTo({ top: journeyTop, behavior: "auto" });
     }
     root.style.setProperty(
       "--progress",
@@ -724,7 +724,7 @@
     const top = cinematic
       ? journeyTop + ((sceneStarts[index] + 0.06) / storySpan) * travel
       : scene.getBoundingClientRect().top + scrollY;
-    window.scrollTo({ top, behavior: reduced.matches ? "instant" : behavior });
+    window.scrollTo({ top, behavior: reduced.matches ? "auto" : behavior });
   }
   document.querySelectorAll('a[href^="#"]').forEach((link) =>
     link.addEventListener("click", (event) => {
@@ -792,7 +792,7 @@
     });
   });
   invitationViewer.addEventListener("close", () => {
-    window.scrollTo({ top: invitationScroll, behavior: "instant" });
+    window.scrollTo({ top: invitationScroll, behavior: "auto" });
     invitationOpener?.focus({ preventScroll: true });
   });
 
@@ -962,7 +962,7 @@
     canvas.classList.remove("has-photo");
     canvas.width = canvas.width;
     status.textContent = initialMemoryStatus;
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     setMotion();
     updateOpening(0);
   }
