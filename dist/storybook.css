@@ -1848,3 +1848,25 @@ html.invitation-locked, html.invitation-locked body {
   image-rendering:auto;
   background:#fff;
 }
+
+
+/* QR v2: preserve the verified square image without cropping, masks or transforms. */
+.cinematic #the-invitation .qr-pass-code{
+  width:max-content;
+  height:max-content;
+  overflow:visible !important;
+  clip-path:none !important;
+  transform:none !important;
+  border-radius:8px;
+  background:#fff;
+}
+.cinematic #the-invitation .qr-pass-code img{
+  aspect-ratio:1 / 1;
+  object-fit:contain !important;
+  object-position:center;
+  clip-path:none !important;
+  transform:none !important;
+  mask:none !important;
+  -webkit-mask:none !important;
+  border-radius:0 !important;
+}
