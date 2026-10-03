@@ -42,7 +42,8 @@ frame = (advance = 16) => {
   callbacks.clear();
   pending.forEach(([, cb]) => cb(clock));
 };
-w.scrollTo = ({ top }) => {
+w.scrollTo = (arg, y) => {
+  const top = typeof arg === "number" ? y : arg.top;
   w.scrollY = top;
   w.dispatchEvent(new w.Event("scroll"));
 };
