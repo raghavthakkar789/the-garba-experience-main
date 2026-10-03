@@ -1540,20 +1540,23 @@ html.invitation-locked, html.invitation-locked body {
   z-index:7;
   background:linear-gradient(170deg,#1a664a,#07382b);
   clip-path:polygon(0 0,100% 0,50% 100%);
-  transform-origin:50% 0;
-  transform:scaleY(calc(1 - var(--reveal,0) * 2));
+  transform-origin:50% 50%;
+  transform:
+    translateX(calc(var(--reveal,0) * 92%))
+    translateY(calc(var(--reveal,0) * 18%))
+    rotate(calc(var(--reveal,0) * 16deg));
   display:grid;
   place-items:start center;
   padding-top:10%;
   will-change:transform;
-  box-shadow:0 -10px 18px #001b1440;
+  box-shadow:0 10px 22px #001b1455;
 }
 .pass-envelope-flap img{
   width:24%;
   height:auto;
   filter:none;
   transform:translateY(-8%);
-  opacity:calc(1 - var(--reveal,0));
+  opacity:calc(1 - var(--reveal,0) * .35);
 }
 
 /* The pass card is above the pocket once visible; opacity keeps it hidden before the flap opens. */
@@ -1807,5 +1810,20 @@ html.invitation-locked, html.invitation-locked body {
   }
   .cinematic #the-invitation .qr-pass-code img{
     width:clamp(105px,31vw,138px);
+  }
+}
+
+.cinematic #the-invitation .pass-envelope-flap{
+  z-index:5;
+}
+.cinematic #the-invitation .pass-card{
+  z-index:8;
+}
+@media(max-width:650px){
+  .cinematic #the-invitation .pass-envelope-flap{
+    transform:
+      translateX(calc(var(--reveal,0) * 76%))
+      translateY(calc(var(--reveal,0) * 25%))
+      rotate(calc(var(--reveal,0) * 13deg));
   }
 }
