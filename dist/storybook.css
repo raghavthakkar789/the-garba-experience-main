@@ -1271,7 +1271,7 @@ html:not(.cinematic) .opening-scene .hamper {
   #opening-sound { bottom: 24px; right: 16px; }
 }
 
-/* The elephant itself is the two-person invitation, shared between the friends. */
+/* The pass handoff is staged between the two friends; the elephant is transport only. */
 .story-invite .invitation-handoff {
   position: relative;
   width: min(92%, 680px);
