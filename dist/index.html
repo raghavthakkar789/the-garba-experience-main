@@ -100,8 +100,8 @@
         <button type="button" id="soundtrack-toggle" class="soundtrack-toggle" aria-label="Mute website sound" aria-pressed="true" hidden>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path class="soundtrack-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="soundtrack-slash" d="m15 9 6 6m0-6-6 6"/></svg>
         <span class="control-label">Mute</span></button>
-        <a class="header-link" href="assets/invitation.jpg" data-view-original aria-haspopup="dialog"
-          ><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="assets/ui-icons.svg#invitation" /></svg><span class="control-label">Invitation</span></a>
+        <a class="header-link" href="https://www.district.in/events/the-garba-experience-with-kinjal-dave-1970-buy-tickets" target="_blank" rel="noopener"
+          ><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="assets/ui-icons.svg#ticket" /></svg><span class="control-label">Grab your passes</span></a>
       </div>
     </header>
     <main>
@@ -237,21 +237,17 @@
               <p class="dialogue-beat" data-speaker="her" data-at="0.18"><span class="speaker">She</span><q lang="gu"><span lang="en">KINJAL DAVE</span>ના ગરબા, અને આપણે એક જ હાથી પર જઈશું.</q></p>
               <p class="dialogue-beat" data-speaker="him" data-at="0.38"><span class="speaker">He</span><q lang="gu">પણ ક્યારે?</q></p>
               <p class="dialogue-beat" data-speaker="her" data-at="0.56"><span class="speaker">She</span><q lang="gu"><span lang="en">9th October, The GARBA Experience</span>માં <span lang="en">KINJAL DAVE</span>ના ગરબા છે.</q></p>
+              <p class="dialogue-beat pass-dialogue" data-speaker="him" data-at="0.68"><span class="speaker">He</span><q lang="gu">પણ આપણે પહોંચીશું કેવી રીતે?</q></p>
+              <p class="dialogue-beat pass-dialogue" data-speaker="her" data-at="0.78"><span class="speaker">She</span><q lang="gu">પહેલા આપણા <span lang="en">passes</span> લઈએ. આ <span lang="en">envelope</span> ખોલ — અંદરનો <span lang="en">QR</span> સ્કેન કરતાં સીધું <span lang="en">District</span> પર booking ખુલશે.</q></p>
             </div>
             <figure class="invitation-handoff">
-              <img
-                class="handoff-still"
-                src="assets/story/elephant-invitation-handoff.webp?v=2"
-                alt="She hands him one charcoal elephant-shaped invitation with gold detailing, a raised trunk and a burgundy event panel, matching the original invitation. One elephant pass admits two people."
-                width="1100"
-                height="917"
-                loading="lazy"
-                decoding="async"
-              />
-              <div class="handoff-rig" role="img" aria-label="She draws the elephant invitation from behind her back, offers it, and lets him take it in his hand. One elephant admits two people.">
+              <div class="handoff-still envelope-still" role="img" aria-label="She hands him a deep green Garba Experience envelope finished with the event logo and gold detailing.">
+                <div class="still-envelope"><img src="assets/logo.webp" alt="" width="96" height="66" loading="lazy" /></div>
+              </div>
+              <div class="handoff-rig" role="img" aria-label="She draws the branded Garba Experience envelope from behind her back, offers it, and he receives it.">
                 <div class="handoff-rear" aria-hidden="true">
                   <img class="handoff-woman-arm" src="assets/story/handoff/woman-arm.webp" alt="" width="430" height="240" loading="lazy" />
-                  <img class="handoff-pass" src="assets/story/handoff/elephant.webp" alt="" width="485" height="375" loading="lazy" />
+                  <div class="handoff-envelope"><img class="handoff-envelope-logo" src="assets/logo.webp" alt="" width="96" height="66" loading="lazy" /></div>
                 </div>
                 <img class="handoff-man" src="assets/story/handoff/man.webp" alt="" width="350" height="815" loading="lazy" aria-hidden="true" />
                 <img class="handoff-woman" src="assets/story/handoff/woman.webp" alt="" width="520" height="790" loading="lazy" aria-hidden="true" />
@@ -259,11 +255,27 @@
                 <img class="handoff-woman-arm handoff-shoulder" src="assets/story/handoff/woman-arm.webp" alt="" width="430" height="240" loading="lazy" aria-hidden="true" />
                 <div class="handoff-front" aria-hidden="true">
                   <img class="handoff-woman-arm" src="assets/story/handoff/woman-arm.webp" alt="" width="430" height="240" loading="lazy" />
-                  <img class="handoff-pass" src="assets/story/handoff/elephant.webp" alt="" width="485" height="375" loading="lazy" />
+                  <div class="handoff-envelope"><img class="handoff-envelope-logo" src="assets/logo.webp" alt="" width="96" height="66" loading="lazy" /></div>
                 </div>
               </div>
-              <figcaption lang="gu">એક હાથી · બે વ્યક્તિઓની એન્ટ્રી</figcaption>
-              <p class="elephant-entry-disclaimer" lang="gu">ખાસ નોંધ: આ હાથી જ તમારો પાસ છે. તેના વગર પ્રવેશ નહીં મળે.</p>
+              <div class="pass-reveal" aria-label="The envelope opens and reveals a QR code for buying passes on District.">
+                <p class="pass-reveal-kicker" lang="gu">પાસ હવે એક સ્કેન દૂર છે.</p>
+                <div class="pass-envelope">
+                  <div class="pass-envelope-back"></div>
+                  <div class="pass-card">
+                    <img class="pass-card-logo" src="assets/logo.webp" alt="The Garba Experience" width="96" height="66" loading="lazy" />
+                    <strong>GRAB YOUR PASSES</strong>
+                    <a class="qr-pass-link" href="https://www.district.in/events/the-garba-experience-with-kinjal-dave-1970-buy-tickets" target="_blank" rel="noopener" aria-label="Open The Garba Experience passes on District">
+                      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOsAAADrCAIAAAAHaPaCAAAFdElEQVR42u3dO3IbOxAFUMvFxDtx6v0vwqmXoB0olPMJqOrqH0Y8J30WySFvoXDfYIC3z4/3H3BbP30FSDBIMEgwEgwSDBIMEowEgwSDBIMEI8EgwVDsEfrXv37/mflYH//+zrzR8yu6fIzQ5Wf+NvPlXN7ozEso/PWNwZhFgASDBKPJ7fWtUEt4XlbGLiHUqDLve3mpwlcu7Hljv74xGLMIkGCQYMg1ucx8PFNl+mpB5novV/S8JGXaWOaeXOaVt359YzBmESDBIMHQ2eS2hG7RHfKP++6cFX5IYzBIMEgwEgyaXJ3Q7a7QTalQZcz848zzeYUrQgsXahqDQYKRYJBguGeT29qmpPB5tdB2IWN3vzIX+PylCvc02ap9xmDMIkCCQYLR5HKNakymYBVWt0xX63vfvs98yK9vDMYsAiQYJBiCTe6Q5XaHVJnM+xZ+z33P55356xuDMYsACQYJhtx5cmNHpmXeKPS82ti2kJmn6LZ+srEj8YzBmEWABIMEwxfePj/em+byhQ+ZhXrAmR+y70juvkso7Gp9tySNwZhFgASDBKPJZpc4UNXhQsXv8GmHoUNcmx3GGMwSDASDBIMxzS50MS/r2EUloatHUAy19v3Rls/WeZXMAZjFgESDBKMJpfrPYX3xrYOFsh85kyRHbO1SWambhqDMYsACQYJhqvU3pWFJSlUGQu37Rhbe7l1WzF0bHrm8sdu0BqDMYsACQYJhtKTwQt7wNieJn0No3BbyMy+l3dcxmkMxiwCJBgkGEqb3Nbu+KH9/jPNptDWasNMo+o7sqDvazcGYxYBEgwSzCua2/GksAb13WcaWyBa2Gv7jnnb+lRWV2IWARIMEgydTS7jkJPbMh0i8yEL/7avXm9t+KLJYRYBEgwSDKVNbmzTyMJKMXYEeeENrcIGWVhVC6u5MRgkGAkGCYaUR99Lh+byfSsVD7nAvo4Yar1bG754Tg4kGAkGCYZjmtzWbbZQdQtVisL7altPs2Uq41i9Lix2xmDMIkCCQYJ5RY2rKzN/2/dGoZcqLJSZyhhqRd/gJHTPyWEWARIMEgxfqLwnFyocmRo0JnM/7/lL9fWtwo6Y6Wp9B8gZgzGLAAkGCYZgk+t72mnrNlvfCXmFHzJTzraOphtLjjEYswiQYJBgXlFqdeXY0sS+1YaFL7W1HWVh7evjOTmQYCQYJBj2mlxhG9vaL2OsMha+8iHNNcN5ciDBSDBIMOw1uTN30+irfWO99pDK2HcEoDEYJBgJBgmGvSaXqTJjj68dcvNv64q2NprZWtVpDMYsAiQYJJhXFNvxZOzEuMJa0HdwXeHxcmNbSo7ttFJ4CcZgzCJAgkGC4aryPLmQwh4wdgpa5jNv7ahZ+LUfcl6gMRizCJBgkGDo3Luyb2pfeIOn76X6usstloAag0GCkWCQYGj0GHunwmO1Qz0vtOgx9L6Z/9rX1cZWom5t3WkMxiwCJBgkGE7du/KQtZeFWztu7cOytQFKptYbgzGLAAkGCYbSJrdla3f8sefVDtnZsq8y2vEEJBgJBgmGvSZ3yD0bG6A0fXV9HdEYDBKMBIMEwzFNrm+vjb6lmGNVdWzpaeEDapkvtm83HGMwZhEgwSDBcFW540nfCrqtNtb3mcf2f8k05sJvsu//ARiDMYsACQYJRpO7iVAN6it2feekF/a80F6dmUvYWmxpDMYsAiQYJBhN7p7Glgh+v00yQx+y79QFYzBmESDBIMGw1+T67ruM3Wbru8DCe1SZI+LG2ufYt2EMxiwCJBgkGE0u10769D2wlWknW2ed9xWssft5npMDCUaCQYIh5R7nyYExGAkGCQYJBglGgkGCQYKRYJBgkGCQYCQYJBim/AdyY9xltMZQLQAAAABJRU5ErkJggg==" alt="QR code linking to The Garba Experience passes on District" width="235" height="235" loading="eager" />
+                    </a>
+                    <small>SCAN OR TAP · BOOK ON DISTRICT</small>
+                  </div>
+                  <div class="pass-envelope-pocket"></div>
+                  <div class="pass-envelope-flap"><img src="assets/logo.webp" alt="" width="96" height="66" loading="lazy" /></div>
+                </div>
+              </div>
+              <figcaption lang="gu">Envelope ખોલો · QR સ્કેન કરો · તમારા passes મેળવો</figcaption>
+              <p class="pass-entry-disclaimer" lang="gu">પ્રવેશ માટે તમારા માન્ય passes / tickets સાથે રાખશો. Booking District દ્વારા થશે.</p>
             </figure>
           </section>
           <section
@@ -804,7 +816,7 @@
             </nav>
           </div>
           <p class="booking-note">Bookings through District</p>
-          <div class="entry-note"><p><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="assets/ui-icons.svg#people" /></svg><strong>One elephant-shaped invitation admits two people.</strong><br />Please bring your elephant pass for entry. <small>For District bookings, follow the entry instructions on your ticket.</small></p>
+          <div class="entry-note"><p><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="assets/ui-icons.svg#ticket" /></svg><strong>Entry is through your valid passes / tickets.</strong><br />Book through District and follow the entry instructions shown on your ticket.</p>
           </div>
           <a class="thank-you-replay" href="#beginning"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="assets/ui-icons.svg#replay" /></svg><span class="control-label">Relive their evening</span></a>
         </div>
