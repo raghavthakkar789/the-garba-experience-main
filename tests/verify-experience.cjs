@@ -238,6 +238,10 @@ const scroll = (cursor) => {
     "one logo click goes directly to the storyline",
   );
   assert.equal(d.activeElement.id, "beginning-title", "logo activation transfers focus into story");
+  w.scrollY = 0;
+  w.dispatchEvent(new w.Event("scroll"));
+  frame(16);
+  assert(!d.documentElement.classList.contains("invitation-locked"), "opened invitation stays unlocked after top/elastic overscroll");
   await tick();
   assert(d.querySelector("#door-sound").paused && !d.querySelector("#descent-sound").paused && d.querySelector("#site-soundtrack").paused, "door transition starts only the descent sound");
   const arrival = d.querySelector('#beginning');
