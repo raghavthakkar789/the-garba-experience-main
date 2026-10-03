@@ -12,7 +12,7 @@ Eventzz Planet, Saregama Entertainment, Ethereum Infracon, MBA Group, Vivanta Gr
 
 ## Items requiring confirmation
 
-- Megma, Hungrito and Alpha Hospital: no matching logo file in the supplied folder. Their names appear as store-board lettering.
+- Megma, Hungrito and Alpha Hospital: matching supplied files were added on 3 October 2026 and are now used in their respective sponsor boards, automatic cards and details dialogs. Sources: `Megma.png`, `hungrito-logo- (1) (1).svg`, and `Alpha Hospital .bmp`.
 - Shah Events: `Shah events .pdf` actually displays **Shah Brothers**, with a printing tagline. Do not assume these are interchangeable. The road uses the requested name Shah Events without that logo until confirmed.
 - Hospitality: the supplied text “Dhaval sethvala ni company nu mangavanu” is an internal request for a company name, not a publishable partner name. `Presha logo.png` displays **Presha Hospitality**, but no role mapping was confirmed. Hospitality is intentionally pending confirmation; neither the internal note nor Presha is published.
 - `New Logo PDF.pdf` is another JG University logo. The named JG Red Logo is used.
