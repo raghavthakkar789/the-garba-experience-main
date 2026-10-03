@@ -84,7 +84,7 @@
   const soundtrack = window.garbaSoundtrack;
   let entryFrame = 0;
   const autoScrollButton = document.querySelector("#autoscroll-toggle");
-  let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0;
+  let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0, autoScrollVelocity = 0;
   let autoWasEntering = false;
   function updateAutoScrollButton() {
     autoScrollButton.setAttribute("aria-pressed", String(autoScrolling));
@@ -121,8 +121,11 @@
         sceneIndex = scenes.findIndex(scene => scene.getBoundingClientRect().bottom > innerHeight / 2);
       }
       const pace = sceneHasDialogue[sceneIndex] ? 1 : scenes[sceneIndex]?.id === "partner-road" ? 2 : 3;
-      const speed = (inStory ? travel / storySpan / 12 : 36) * pace;
-      autoScrollPosition = Math.min(end, autoScrollPosition + speed * seconds);
+      const targetSpeed = (inStory ? travel / storySpan / 12 : 36) * pace;
+      // Ease between scene speeds so entering/leaving dialogue does not feel like a gear change.
+      const velocityEase = 1 - Math.exp(-seconds / 0.34);
+      autoScrollVelocity += (targetSpeed - autoScrollVelocity) * velocityEase;
+      autoScrollPosition = Math.min(end, autoScrollPosition + autoScrollVelocity * seconds);
       const before = scrollY;
       jumpTo(autoScrollPosition);
       if (Math.abs(scrollY - before) < .5 && Math.abs(autoScrollPosition - before) > 1) {
@@ -142,6 +145,7 @@
     autoScrolling = true;
     autoWasEntering = Boolean(entryFrame);
     autoScrollPosition = scrollY;
+    autoScrollVelocity = 0;
     autoScrollLast = performance.now();
     updateAutoScrollButton();
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
@@ -190,7 +194,7 @@
   }
   function holdDialogue(position) {
     dialogueHold = position;
-    holdUntil = performance.now() + 500;
+    holdUntil = performance.now() + 380;
     touchBlocked = touchY !== null;
     manualTarget = position;
   }
@@ -200,10 +204,15 @@
       cancelManualScroll(); return;
     }
     const direction = Math.sign(manualTarget - manualPosition);
-    // A same-frame input can arrive after the RAF timestamp; never step backwards.
-    const step = Math.min(64, Math.max(0, now - manualLast)) / 1000 * clamp(innerHeight * 1.6, 800, 1600);
+    const dt = Math.min(40, Math.max(0, now - manualLast)) / 1000;
     manualLast = now;
-    const next = manualPosition + direction * Math.min(Math.abs(manualTarget - manualPosition), step);
+    // Exponential interpolation gives wheel/trackpad input a soft acceleration/deceleration curve.
+    const distance = manualTarget - manualPosition;
+    const alpha = 1 - Math.exp(-dt / 0.105);
+    const easedStep = distance * alpha;
+    const maxStep = clamp(innerHeight * 2.05, 980, 1900) * dt;
+    const step = Math.sign(easedStep) * Math.min(Math.abs(easedStep), maxStep);
+    const next = manualPosition + step;
     const stops = dialogueStops();
     const stop = direction > 0
       ? stops.find(y => y > manualPosition + .5 && y <= next + .5)
@@ -218,15 +227,15 @@
     const now = performance.now(), idle = now - lastManualInput;
     lastManualInput = now;
     if (dialogueHold !== null) {
-      if (now < holdUntil || idle < 180 || repeated || touchBlocked) return;
+      if (now < holdUntil || idle < 130 || repeated || touchBlocked) return;
       dialogueHold = null;
     } else if (!manualFrame) {
       const current = dialogueStops().find(y => Math.abs(y - scrollY) <= 2);
       if (current !== undefined) { holdDialogue(current); return; }
     }
     if (!manualFrame) { manualPosition = scrollY; manualTarget = scrollY; }
-    const budget = Math.min(700, innerHeight * .85);
-    const amount = clamp(delta * 1.5, -budget, budget);
+    const budget = Math.min(620, innerHeight * .72);
+    const amount = clamp(delta * 1.18, -budget, budget);
     if (Math.sign(amount) !== Math.sign(manualTarget - manualPosition)) manualTarget = manualPosition;
     manualTarget = clamp(manualTarget + amount, Math.max(0, manualPosition - budget),
       Math.min(root.scrollHeight - innerHeight, manualPosition + budget));
