@@ -655,7 +655,9 @@
     let base = scenes.length - 1;
     while (base > 0 && cursor < sceneStarts[base]) base--;
     const local = clamp((cursor - sceneStarts[base]) / sceneSpans[base]);
-    const blend = base < scenes.length - 1 ? ease((local - 0.7) / 0.3) : 0;
+    const blendStart = scenes[base]?.id === "the-invitation" ? 0.94 : 0.7;
+    const blendWindow = scenes[base]?.id === "the-invitation" ? 0.06 : 0.3;
+    const blend = base < scenes.length - 1 ? ease((local - blendStart) / blendWindow) : 0;
     const selected = blend > 0.5 ? base + 1 : base;
     scenes.forEach((scene, i) => {
       const isBase = i === base;
