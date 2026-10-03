@@ -39,6 +39,7 @@
     return total + span;
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const iOSWebKit = /iP(?:hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
   const jumpTo = (top, left = 0) => {
     const y = Math.max(0, Number(top) || 0);
@@ -158,6 +159,12 @@
   });
   document.addEventListener("visibilitychange", () => { if (document.hidden) stopAutoScroll(); });
   addEventListener("pagehide", stopAutoScroll);
+  addEventListener("pageshow", () => {
+    if (!autoScrolling || autoScrollFrame || document.hidden) return;
+    autoScrollPosition = scrollY;
+    autoScrollLast = performance.now();
+    autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
+  });
   // Manual gestures are bounded and cannot carry momentum past a dialogue stop.
   let manualFrame = 0, manualTarget = 0, manualPosition = 0, manualLast = 0;
   let dialogueHold = null, holdUntil = 0, lastManualInput = -Infinity;
@@ -243,10 +250,15 @@
   }, { passive:false });
   addEventListener("touchstart", event => {
     stopManualMotion();
-    touchY = event.touches?.length === 1 && !localScrollTarget(event.target) && !scrollControl(event.target) ? event.touches[0].clientY : null;
     touchBlocked = false;
+    if (iOSWebKit) {
+      touchY = null; // Native WebKit scrolling is more reliable than preventDefault-driven touch motion.
+      return;
+    }
+    touchY = event.touches?.length === 1 && !localScrollTarget(event.target) && !scrollControl(event.target) ? event.touches[0].clientY : null;
   }, { passive:true });
   addEventListener("touchmove", event => {
+    if (iOSWebKit) return;
     if (touchY === null || event.touches.length !== 1 || document.querySelector("dialog[open]")) return;
     if (!event.cancelable) return;
     event.preventDefault();
@@ -311,6 +323,11 @@
       else {
         entryFrame = 0;
         delete opening.dataset.entering;
+        if (autoScrolling) {
+          autoScrollPosition = scrollY;
+          autoScrollLast = performance.now();
+          if (!autoScrollFrame) autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
+        }
       }
     };
     entryFrame = requestAnimationFrame(advance);
