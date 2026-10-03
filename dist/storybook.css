@@ -1438,14 +1438,14 @@ html.invitation-locked, html.invitation-locked body {
 .pass-card{position:absolute;z-index:3;left:50%;top:8%;translate:-50% calc((1 - var(--qr-rise,0)) * 34%);width:72%;min-height:118%;padding:16px 14px 20px;background:#f8eed9;border:1px solid #cba967;border-radius:8px;text-align:center;color:#15352b;opacity:var(--qr-opacity,0);box-shadow:0 10px 30px #0005}
 .pass-card-logo{width:74px;height:auto;margin:0 auto 7px;filter:none}
 .pass-card strong{display:block;font:600 clamp(14px,2vw,20px)/1.1 var(--serif);letter-spacing:.04em;color:#4c0e12;margin-bottom:9px}
-.qr-pass-link{display:inline-grid;place-items:center;pointer-events:auto;border:1px solid #b58b49;background:#fff7e8;padding:7px;border-radius:7px}
-.qr-pass-link img{display:block;width:min(176px,30vw);height:auto;filter:none}
+.qr-pass-code{display:inline-grid;place-items:center;background:#fff;padding:12px;border:2px solid #b58b49;border-radius:9px;box-shadow:0 8px 20px #0003;pointer-events:none}
+.qr-pass-code img{display:block;width:min(210px,34vw);height:auto;filter:none;image-rendering:pixelated}
 .pass-card small{display:block;margin-top:8px;font-size:8px;letter-spacing:.15em;color:#73572f}
 .pass-entry-disclaimer{margin:8px auto 0;font:500 12px/1.6 "Noto Serif Gujarati",serif;color:#fff8e5;background:#163b32ed;border:1px solid #d6b56c;border-radius:6px;padding:7px 10px;text-align:center}
 .cinematic .pass-entry-disclaimer{position:absolute;top:100%;left:50%;transform:translateX(-50%);width:min(520px,calc(100vw - 28px));box-sizing:border-box}
 @media(max-width:650px){
   .pass-reveal-kicker{top:5%;font-size:14px}
   .pass-envelope{width:min(300px,72vw)}
-  .qr-pass-link img{width:min(142px,37vw)}
+  .qr-pass-code img{display:block;width:min(210px,34vw);height:auto;filter:none;image-rendering:pixelated}
   .pass-card{padding:12px 10px 16px}
 }
