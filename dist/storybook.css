@@ -1993,3 +1993,14 @@ html.invitation-locked, html.invitation-locked body {
     touch-action: pan-y;
   }
 }
+
+
+/* iOS performance mode: avoid expensive drop-shadow filters on large moving art. */
+html.ios-webkit .story-person,
+html.ios-webkit .aarti-art,
+html.ios-webkit .journey-elephant .elephant-art,
+html.ios-webkit .journey-elephant .elephant-riders,
+html.ios-webkit .together-art,
+html.ios-webkit .hamper {
+  filter: none !important;
+}
