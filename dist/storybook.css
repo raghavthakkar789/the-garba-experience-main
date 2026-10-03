@@ -1827,3 +1827,24 @@ html.invitation-locked, html.invitation-locked body {
       rotate(calc(var(--reveal,0) * 13deg));
   }
 }
+
+
+/* Open-pass cleanup: remove dialogue clutter and preserve QR pixels exactly. */
+.cinematic #the-invitation.pass-open .dialogue-track{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+.cinematic #the-invitation.pass-open .story-title{
+  opacity:.2;
+}
+.cinematic #the-invitation .qr-pass-code{
+  overflow:visible;
+  line-height:0;
+}
+.cinematic #the-invitation .qr-pass-code img{
+  display:block;
+  object-fit:contain;
+  image-rendering:auto;
+  background:#fff;
+}
