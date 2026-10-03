@@ -16,8 +16,8 @@
     const reveal = ease((progress - 0.06) / 0.22);
     const reach = ease((progress - 0.20) / 0.16);
     const receive = ease((progress - 0.34) / 0.16);
-    const open = ease((progress - 0.55) / 0.14);
-    const qr = ease((progress - 0.62) / 0.16);
+    const open = ease((progress - 0.42) / 0.13);
+    const qr = ease((progress - 0.50) / 0.14);
     const front = ease((progress - 0.15) / 0.10);
     const herAngle = -80 * (1 - reveal) - 68 * receive;
     const hisAngle = 48 * (1 - reach) - 8 * receive;
@@ -33,12 +33,12 @@
     rig.style.setProperty("--front", front.toFixed(4));
     rig.style.setProperty("--rear", (1 - front).toFixed(4));
     rig.style.setProperty("--pass-visible", ease((progress - 0.07) / 0.07).toFixed(4));
-    rig.style.setProperty("--handoff-fade", (1 - ease((progress - 0.62) / 0.10)).toFixed(4));
+    rig.style.setProperty("--handoff-fade", (1 - ease((progress - 0.54) / 0.10)).toFixed(4));
     if (revealPanel) {
       revealPanel.style.setProperty("--reveal", open.toFixed(4));
       revealPanel.style.setProperty("--qr-rise", qr.toFixed(4));
-      revealPanel.style.setProperty("--qr-opacity", ease((progress - 0.60) / 0.08).toFixed(4));
-      revealPanel.dataset.state = progress < 0.55 ? "closed" : progress < 0.69 ? "opening" : "passes";
+      revealPanel.style.setProperty("--qr-opacity", ease((progress - 0.48) / 0.08).toFixed(4));
+      revealPanel.dataset.state = progress < 0.42 ? "closed" : progress < 0.58 ? "opening" : "passes";
     }
     rig.dataset.handoff = progress < 0.07 ? "concealed"
       : progress < 0.30 ? "revealing" : progress < 0.52 ? "offering" : progress < 0.62 ? "received" : "opened";
