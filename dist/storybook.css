@@ -1403,7 +1403,8 @@ html:not(.cinematic) .opening-scene .hamper {
 
 /* Opening is an explicit invitation: prompt motion runs only while waiting for a click. */
 html.invitation-locked, html.invitation-locked body {
-  overflow: hidden;
+  /* JS already pins the sealed invitation at the top. Avoid root overflow locks:
+     iOS Safari can fail to restore scrolling after overflow:hidden is removed. */
   overscroll-behavior: none;
 }
 .invitation-locked .scroll-cue { visibility: hidden; }
