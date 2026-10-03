@@ -39,7 +39,7 @@
     return total + span;
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const iOSWebKit = /iP(?:hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+  const iOSWebKit = (/iP(?:hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) && /WebKit/.test(navigator.userAgent);
   root.classList.toggle("ios-webkit", iOSWebKit);
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
   const jumpTo = (top, left = 0) => {
