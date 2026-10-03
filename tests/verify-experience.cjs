@@ -127,6 +127,10 @@ const scroll = (cursor) => {
   assert.equal(road.previousElementSibling.id, 'celebration', 'Garba flows into the walk home');
   assert.equal(d.querySelector('main').lastElementChild.id, 'details', 'original static details remain the ending');
   assert.equal(road.querySelectorAll('.partner-shop').length, 16, 'every confirmed sponsor remains');
+  assert(road.querySelector('img[src="assets/partners/megma.png"]'), 'Megma uses the supplied logo');
+  assert(road.querySelector('img[src="assets/partners/hungrito.svg"]'), 'Hungrito uses the supplied logo');
+  assert(road.querySelector('img[src="assets/partners/alpha-hospital.bmp"]'), 'Alpha Hospital uses the supplied logo');
+  assert(!script.includes('behavior: "instant"'), 'story controller avoids non-standard instant scroll behavior for iOS Safari');
   assert(!d.querySelector('#the-invitation .original-invitation'), 'early invitation scene no longer shows the poster');
   assert(d.querySelector('#the-invitation .handoff-envelope img').getAttribute('src').includes('logo.webp'), 'she hands him the branded Garba Experience envelope');
   assert(d.querySelector('#the-invitation').textContent.includes('પણ આપણે પહોંચીશું કેવી રીતે?'), 'the pass question extends the existing Gujarati dialogue');
