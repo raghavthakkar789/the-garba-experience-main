@@ -141,8 +141,8 @@ const scroll = (cursor) => {
   assert([...d.querySelectorAll('#the-invitation q [lang="en"]')].some(line => line.textContent.includes('9th October')), 'date stays in English');
   assert(d.querySelector('#details .entry-note').textContent.includes('valid passes / tickets'), 'the final entry note uses passes instead of the elephant admission rule');
   assert.equal(d.querySelector('.masthead .header-link .control-label').textContent.trim(), 'Grab your passes', 'navbar invitation action becomes Grab your passes');
-  for (const el of d.querySelectorAll("[src],link[href],a[href]")) {
-    const value = el.getAttribute("src") || el.getAttribute("href");
+  for (const el of d.querySelectorAll("[src],[data-src],link[href],a[href]")) {
+    const value = el.getAttribute("src") || el.getAttribute("data-src") || el.getAttribute("href");
     if (value.startsWith("#"))
       assert(d.querySelector(value), `anchor ${value}`);
     else if (!/^(https?:|data:)/.test(value))
@@ -209,7 +209,8 @@ const scroll = (cursor) => {
     'aarti precedes the stage and garba ground in every viewing mode');
   for (const id of ['arrival', 'a-memory', 'devotion', 'the-stage', 'celebration']) {
     const art = d.querySelector(`#${id} .scene-art img, #${id} .garba-courtyard`);
-    assert(art.getAttribute('src').includes('/event-decor/'), `${id} uses the supplied event decor`);
+    const artSource = art.getAttribute('src') || art.getAttribute('data-src') || '';
+    assert(artSource.includes('/event-decor/'), `${id} uses the supplied event decor`);
   }
 
   assert.equal(d.querySelector(".scene.is-active").id, "invitation");
