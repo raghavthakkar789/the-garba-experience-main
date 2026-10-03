@@ -4,6 +4,8 @@
   const scene = document.querySelector("#celebration");
   if (!scene) return;
   const root = document.documentElement;
+  const iOSWebKit = /iP(?:hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+  let lastPaint = 0;
   const rings = [...scene.querySelectorAll(".garba-ring")];
   let frame = 0, previous = 0, elapsed = 0, progress = 0;
   const canDance = () => root.classList.contains("cinematic") &&
@@ -27,7 +29,10 @@
     if (!canDance()) { stop(); return; }
     if (previous) elapsed += Math.min((now - previous) / 1000, 0.05);
     previous = now;
-    paint();
+    if (!iOSWebKit || now - lastPaint >= 32) {
+      lastPaint = now;
+      paint();
+    }
     frame = requestAnimationFrame(dance);
   }
   function sync() {
