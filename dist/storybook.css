@@ -1271,7 +1271,7 @@ html:not(.cinematic) .opening-scene .hamper {
   #opening-sound { bottom: 24px; right: 16px; }
 }
 
-/* The elephant itself is the two-person invitation, shared between the friends. */
+/* The pass handoff is staged between the two friends; the elephant is transport only. */
 .story-invite .invitation-handoff {
   position: relative;
   width: min(92%, 680px);
@@ -1416,4 +1416,36 @@ html.invitation-locked, html.invitation-locked body {
 }
 @media (prefers-reduced-motion: reduce) {
   .seal-prompt { animation: none !important; }
+}
+
+
+/* Pass-envelope revision: the elephant remains transport only; admission is handled by District passes. */
+.envelope-still{display:block;width:min(420px,72vw);aspect-ratio:1.55;margin:0 auto;filter:drop-shadow(0 16px 18px #10251f66)}
+.still-envelope,.handoff-envelope{position:relative;background:linear-gradient(145deg,#0d4e3b,#052b22);border:2px solid #dab978;border-radius:8px;box-shadow:inset 0 0 0 7px #dab97818,0 12px 24px #10251f55}
+.still-envelope{width:100%;height:100%;display:grid;place-items:center}
+.still-envelope:before,.handoff-envelope:before{content:"";position:absolute;inset:8px;border:1px solid #dab97855;border-radius:5px;pointer-events:none}
+.still-envelope img{width:34%;height:auto;filter:none}
+.handoff-rig{opacity:var(--handoff-fade,1)}
+.handoff-rig .handoff-envelope{position:absolute;width:24.5455%;aspect-ratio:1.55;left:0;top:0;transform-origin:80% 97%;transform:translate(var(--pass-x,240%),var(--pass-y,110%)) rotate(var(--pass-turn,12deg));opacity:var(--pass-visible,0);display:grid;place-items:center}
+.handoff-rig .handoff-envelope-logo{position:relative;width:48%;height:auto;inset:auto;filter:none;max-width:100%}
+.pass-reveal{position:absolute;inset:0;z-index:9;display:grid;place-items:center;pointer-events:none;opacity:var(--reveal,0)}
+.pass-reveal-kicker{position:absolute;top:7%;left:50%;translate:-50% 0;margin:0;width:min(560px,88%);text-align:center;color:#fff1ce;font:500 17px/1.5 "Noto Serif Gujarati",serif;text-shadow:0 2px 8px #10251f}
+.pass-envelope{position:relative;width:min(390px,62vw);aspect-ratio:1.42;filter:drop-shadow(0 22px 26px #10251f88)}
+.pass-envelope-back{position:absolute;inset:0;background:linear-gradient(145deg,#0c4c39,#04281f);border:2px solid #dab978;border-radius:10px}
+.pass-envelope-pocket{position:absolute;inset:0;z-index:4;background:linear-gradient(155deg,#124f3e,#052b22);clip-path:polygon(0 18%,50% 60%,100% 18%,100% 100%,0 100%);border-radius:10px}
+.pass-envelope-flap{position:absolute;inset:0 0 auto;height:55%;z-index:5;background:linear-gradient(170deg,#1a664c,#062f25);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:50% 0;transform:perspective(700px) rotateX(calc(var(--reveal,0) * -165deg));display:grid;place-items:center}
+.pass-envelope-flap img{width:26%;height:auto;filter:none;transform:translateY(-10%)}
+.pass-card{position:absolute;z-index:3;left:50%;top:8%;translate:-50% calc((1 - var(--qr-rise,0)) * 34%);width:72%;min-height:118%;padding:16px 14px 20px;background:#f8eed9;border:1px solid #cba967;border-radius:8px;text-align:center;color:#15352b;opacity:var(--qr-opacity,0);box-shadow:0 10px 30px #0005}
+.pass-card-logo{width:74px;height:auto;margin:0 auto 7px;filter:none}
+.pass-card strong{display:block;font:600 clamp(14px,2vw,20px)/1.1 var(--serif);letter-spacing:.04em;color:#4c0e12;margin-bottom:9px}
+.qr-pass-link{display:inline-grid;place-items:center;pointer-events:auto;border:1px solid #b58b49;background:#fff7e8;padding:7px;border-radius:7px}
+.qr-pass-link img{display:block;width:min(176px,30vw);height:auto;filter:none}
+.pass-card small{display:block;margin-top:8px;font-size:8px;letter-spacing:.15em;color:#73572f}
+.pass-entry-disclaimer{margin:8px auto 0;font:500 12px/1.6 "Noto Serif Gujarati",serif;color:#fff8e5;background:#163b32ed;border:1px solid #d6b56c;border-radius:6px;padding:7px 10px;text-align:center}
+.cinematic .pass-entry-disclaimer{position:absolute;top:100%;left:50%;transform:translateX(-50%);width:min(520px,calc(100vw - 28px));box-sizing:border-box}
+@media(max-width:650px){
+  .pass-reveal-kicker{top:5%;font-size:14px}
+  .pass-envelope{width:min(300px,72vw)}
+  .qr-pass-link img{width:min(142px,37vw)}
+  .pass-card{padding:12px 10px 16px}
 }

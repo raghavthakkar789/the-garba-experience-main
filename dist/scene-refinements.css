@@ -180,7 +180,7 @@ html:not(.cinematic) .garba-world { top: 65%; }
 }
 
 /* A separate note preserves the approved handoff's dimensions and motion. */
-.elephant-entry-disclaimer {
+.pass-entry-disclaimer {
   margin: 8px auto 0;
   font: 500 12px/1.6 "Noto Serif Gujarati", serif;
   color: #fff8e5;
@@ -190,7 +190,7 @@ html:not(.cinematic) .garba-world { top: 65%; }
   padding: 7px 10px;
   text-align: center;
 }
-.cinematic .elephant-entry-disclaimer {
+.cinematic .pass-entry-disclaimer {
   position: absolute;
   top: 100%;
   left: 50%;
