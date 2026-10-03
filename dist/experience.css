@@ -1627,3 +1627,12 @@ dialog::backdrop {
   object-fit: contain;
   background: #09271f;
 }
+
+
+/* Safari compositing safeguard: backdrop blur over a full cinematic viewport can
+   become a major scroll bottleneck on iPhone. */
+html.ios-webkit .artist-credit,
+html.ios-webkit dialog::backdrop {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
