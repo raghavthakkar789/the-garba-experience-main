@@ -40,6 +40,7 @@
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const iOSWebKit = /iP(?:hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent);
+  root.classList.toggle("ios-webkit", iOSWebKit);
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
   const jumpTo = (top, left = 0) => {
     const y = Math.max(0, Number(top) || 0);
@@ -596,8 +597,13 @@
     logo.style.setProperty("height", `${artHeight}px`);
   }
   // The moving circle keeps the small speech bubble attached between scroll events.
+  let lastGarbaDialogueLayout = 0;
   document.querySelector("#celebration").addEventListener("garba-frame", (event) => {
-    if (cinematic) positionDialogue(event.currentTarget);
+    if (!cinematic) return;
+    const now = performance.now();
+    if (iOSWebKit && now - lastGarbaDialogueLayout < 90) return;
+    lastGarbaDialogueLayout = now;
+    positionDialogue(event.currentTarget);
   });
   function clearSceneState() {
     document.querySelectorAll(".invitation-wall-branding image").forEach(logo => logo.removeAttribute("style"));
@@ -691,11 +697,9 @@
     frame = 0;
     // Wheel, touch, keyboard and restored scroll positions cannot open a sealed box.
     if (cinematic) {
-      if (entryUnlocked && entryHasAdvanced && !entryFrame && scrollY <= journeyTop) {
-        entryUnlocked = false;
-        entryHasAdvanced = false;
-        soundtrack?.reset();
-      }
+      // Once the invitation has opened, keep the journey unlocked until an explicit
+      // reload/reset. iOS elastic overscroll can momentarily report the top position
+      // and used to relock the entire story.
       root.classList.toggle("invitation-locked", !entryUnlocked);
       if (!entryUnlocked && scrollY !== journeyTop)
         jumpTo(journeyTop);
@@ -768,7 +772,12 @@
           ease((progress - 0.24) / 0.6),
         );
     });
-    scenes.filter((scene) => scene.classList.contains("is-visible")).forEach(positionDialogue);
+    const layoutNow = performance.now();
+    const dialogueLayoutInterval = iOSWebKit ? 72 : 0;
+    if (!dialogueLayoutInterval || layoutNow - lastDialogueLayout >= dialogueLayoutInterval) {
+      scenes.filter((scene) => scene.classList.contains("is-visible")).forEach(positionDialogue);
+      lastDialogueLayout = layoutNow;
+    }
     const photoButton = document.querySelector("#take-story-photo");
     if (photoButton) photoButton.disabled = false;
     if (focusStoryOnArrival && scenes[selected].id === "beginning") {
@@ -780,6 +789,7 @@
       scenes[selected].dataset.label;
     stage.style.setProperty("--dust-y", `${(cursor * -9).toFixed(2)}px`);
   }
+  let lastDialogueLayout = 0;
   function schedule() {
     if (!frame) frame = requestAnimationFrame(renderScroll);
   }
