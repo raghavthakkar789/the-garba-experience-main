@@ -1980,3 +1980,16 @@ html.invitation-locked, html.invitation-locked body {
     font-size:8px;
   }
 }
+
+
+/* iOS Safari must remain natively scrollable after the opening gate. */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    -webkit-overflow-scrolling: touch;
+  }
+  html.invitation-locked,
+  html.invitation-locked body {
+    overflow-y: auto !important;
+    touch-action: pan-y;
+  }
+}
