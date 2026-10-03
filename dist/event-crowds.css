@@ -167,3 +167,18 @@ html:not(.cinematic) .road-crowd { display: none; }
 @media (prefers-reduced-motion:reduce) {
   .cinematic .stage-beam { animation: none; }
 }
+
+
+/* iOS performance mode: keep the crowd composition, but stop dozens of concurrent
+   CSS animation/compositing layers while the user scrolls through the story. */
+html.ios-webkit.cinematic .event-crowd .guest-shift,
+html.ios-webkit.cinematic .event-crowd .guest-body,
+html.ios-webkit.cinematic .event-crowd .guest-sprite,
+html.ios-webkit.cinematic .stage-beam {
+  animation: none !important;
+}
+html.ios-webkit .guest-sprite,
+html.ios-webkit .guest-shift::after,
+html.ios-webkit .stage-beam {
+  filter: none !important;
+}
