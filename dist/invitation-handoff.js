@@ -34,6 +34,7 @@
     rig.style.setProperty("--rear", (1 - front).toFixed(4));
     rig.style.setProperty("--pass-visible", ease((progress - 0.07) / 0.07).toFixed(4));
     rig.style.setProperty("--handoff-fade", (1 - ease((progress - 0.56) / 0.12)).toFixed(4));
+    scene.classList.toggle("pass-open", progress >= 0.42);
     if (revealPanel) {
       revealPanel.style.setProperty("--reveal", open.toFixed(4));
       revealPanel.style.setProperty("--qr-rise", qr.toFixed(4));
