@@ -1717,3 +1717,63 @@ html.invitation-locked, html.invitation-locked body {
   .pass-card{min-height:122%;padding:12px}
   .qr-pass-code img{width:145px}
 }
+
+
+/* Invitation pass reveal visibility fix: hold a complete, unobstructed card on screen. */
+.cinematic .journey-stage:has(#the-invitation.is-active) .stage-brands{
+  opacity:0 !important;
+  visibility:hidden;
+  pointer-events:none;
+}
+.cinematic #the-invitation .pass-reveal{
+  align-items:flex-start;
+  padding-top:clamp(120px,17vh,170px);
+}
+.cinematic #the-invitation .pass-envelope{
+  margin-top:0;
+}
+.cinematic #the-invitation .pass-card{
+  top:10%;
+  width:74%;
+  min-height:0;
+  height:auto;
+  padding:clamp(12px,1.8vw,18px);
+}
+.cinematic #the-invitation .pass-card-logo{
+  width:clamp(52px,6vw,72px);
+}
+.cinematic #the-invitation .pass-card-instruction{
+  max-width:250px;
+  margin-bottom:7px;
+}
+.cinematic #the-invitation .qr-pass-code img{
+  width:clamp(120px,14vw,175px);
+}
+@media(max-width:650px){
+  .cinematic #the-invitation .pass-reveal{
+    padding-top:clamp(105px,15vh,135px);
+  }
+  .cinematic #the-invitation .pass-envelope{
+    width:min(78vw,330px);
+  }
+  .cinematic #the-invitation .pass-card{
+    width:78%;
+    padding:10px;
+  }
+  .cinematic #the-invitation .pass-card-logo{width:50px}
+  .cinematic #the-invitation .pass-card-instruction{
+    font-size:7.5px;
+    margin-bottom:6px;
+  }
+  .cinematic #the-invitation .qr-pass-code{
+    padding:7px;
+  }
+  .cinematic #the-invitation .qr-pass-code img{
+    width:clamp(112px,34vw,145px);
+  }
+}
+@media(max-height:700px) and (min-width:651px){
+  .cinematic #the-invitation .pass-reveal{padding-top:92px}
+  .cinematic #the-invitation .pass-envelope{width:min(360px,38vw)}
+  .cinematic #the-invitation .qr-pass-code img{width:125px}
+}
