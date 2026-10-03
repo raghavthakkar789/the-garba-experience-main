@@ -508,3 +508,216 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
   .cinematic .partner-road .partner-logo-slot { padding: 2px; }
   .cinematic .partner-road .partner-monogram { font-size: clamp(9px, 1.6vw, 16px); }
 }
+
+
+/* 3 Oct partner-card polish: larger logos, readable names, responsive spacing. */
+.cinematic #arrival .dialogue-track{
+  z-index:80 !important;
+}
+.cinematic #arrival .dialogue-beat{
+  z-index:81;
+  box-shadow:0 7px 24px #07150f66;
+}
+
+/* Shop plaques */
+.partner-logo-slot{
+  overflow:hidden;
+}
+.cinematic .partner-road .shop-sign{
+  grid-template-columns:38% minmax(0,1fr);
+  min-height:58%;
+}
+.cinematic .partner-road .partner-logo-slot{
+  padding:clamp(3px,.45vw,7px);
+}
+.cinematic .partner-road .shop-logo{
+  width:100%;
+  height:100%;
+  max-height:none;
+  object-fit:contain;
+}
+.cinematic .partner-road .shop-details{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  padding:clamp(4px,.55vw,9px);
+}
+.cinematic .partner-road .shop-role{
+  display:block;
+  margin:0 0 3px;
+  font:600 clamp(6px,.62vw,9px)/1.15 var(--sans);
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  color:#5f6b5d;
+}
+.cinematic .partner-road .shop-name,
+.cinematic .partner-road .shop-lettering{
+  margin:0;
+  font:600 clamp(9px,1.05vw,15px)/1.08 Georgia,serif;
+  color:#20382c;
+  overflow-wrap:normal;
+  word-break:normal;
+  hyphens:none;
+}
+.cinematic .partner-road .shop-name .name-detail{
+  display:block;
+  font-size:.82em;
+  line-height:1.08;
+}
+
+/* The supplied Megma PNG has a large transparent canvas; crop optically with scale. */
+.shop-logo.logo-megma,
+#partner-dialog-logo[src$="megma.png"],
+.partner-auto-card img[src$="megma.png"]{
+  transform:scale(3.4);
+  transform-origin:center;
+}
+.shop-logo.logo-hungrito{ transform:scale(.95); }
+.shop-logo.logo-alpha{ transform:scale(.95); }
+
+/* Auto introduction card */
+.partner-auto-card{
+  grid-template-columns:clamp(120px,18vw,175px) minmax(0,1fr);
+  width:min(560px,calc(100vw - 36px));
+  min-height:clamp(120px,18svh,160px);
+  border-width:2px;
+  border-radius:16px;
+  overflow:hidden;
+}
+.partner-auto-card .partner-logo-slot{
+  min-height:100%;
+  padding:clamp(10px,2vw,18px);
+  border-right:1px solid #3551442e;
+}
+.partner-auto-card img{
+  width:100%;
+  height:clamp(86px,13svh,126px);
+  object-fit:contain;
+}
+.partner-card-copy{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:clamp(16px,2.4vw,26px);
+}
+.partner-auto-role{
+  margin:0 0 7px;
+  font:600 clamp(9px,1vw,12px)/1.3 var(--sans);
+  letter-spacing:.09em;
+  color:#657062;
+}
+.partner-auto-name{
+  margin:0;
+  font:600 clamp(24px,3.4vw,36px)/1.08 Georgia,serif;
+  color:#20382c;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+/* Open details card */
+.partner-dialog{
+  width:min(620px,calc(100vw - 32px));
+  max-height:calc(100dvh - 32px);
+  padding:64px 0 0;
+  border-width:2px;
+  border-radius:18px;
+  overflow:hidden;
+  text-align:left;
+}
+.partner-card-row{
+  display:grid;
+  grid-template-columns:minmax(155px,38%) minmax(0,1fr);
+  min-height:clamp(180px,31svh,260px);
+  align-items:stretch;
+}
+.partner-dialog .partner-logo-slot{
+  padding:clamp(16px,3vw,28px);
+  border-right:1px solid #3551442e;
+}
+#partner-dialog-logo{
+  width:100%;
+  height:100%;
+  max-height:190px;
+  object-fit:contain;
+  margin:auto;
+}
+#partner-dialog-role{
+  margin:0 0 8px;
+  font:600 clamp(10px,1.2vw,13px)/1.35 var(--sans);
+  letter-spacing:.09em;
+  color:#667064;
+}
+#partner-dialog-name{
+  margin:0;
+  font:600 clamp(27px,4vw,40px)/1.08 Georgia,serif;
+  color:#20382c;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+
+/* Do not hide featured partner names in auto/open cards. */
+.partner-auto-card.featured-partner .partner-card-copy,
+.partner-dialog.featured-partner .partner-card-copy{
+  position:static !important;
+  width:auto !important;
+  height:auto !important;
+  margin:0 !important;
+  overflow:visible !important;
+  clip-path:none !important;
+  white-space:normal !important;
+}
+
+@media(max-width:650px){
+  .cinematic .partner-road .shop-sign{
+    grid-template-columns:42% minmax(0,1fr);
+    height:66%;
+  }
+  .cinematic .partner-road .shop-role{
+    font-size:clamp(5px,1.45vw,7px);
+    letter-spacing:.02em;
+  }
+  .cinematic .partner-road .shop-name,
+  .cinematic .partner-road .shop-lettering{
+    font-size:clamp(7px,2.15vw,10px);
+  }
+
+  .partner-auto-card{
+    grid-template-columns:110px minmax(0,1fr);
+    width:calc(100vw - 26px);
+    min-height:116px;
+  }
+  .partner-auto-card .partner-logo-slot{padding:10px}
+  .partner-auto-card img{height:86px}
+  .partner-card-copy{padding:14px}
+  .partner-auto-role{font-size:8px;margin-bottom:5px}
+  .partner-auto-name{font-size:clamp(20px,6vw,28px)}
+
+  .partner-dialog{
+    width:calc(100vw - 22px);
+    max-height:calc(100dvh - 22px);
+    padding-top:58px;
+  }
+  .partner-card-row{
+    grid-template-columns:1fr;
+    min-height:0;
+  }
+  .partner-dialog .partner-logo-slot{
+    height:clamp(120px,24svh,180px);
+    border-right:0;
+    border-bottom:1px solid #3551442e;
+    padding:14px 20px;
+  }
+  #partner-dialog-logo{max-height:150px}
+  .partner-dialog .partner-card-copy{padding:18px 20px 22px}
+  #partner-dialog-role{font-size:9px}
+  #partner-dialog-name{font-size:clamp(24px,7vw,32px)}
+}
+
+@media(max-width:380px){
+  .partner-auto-card{
+    grid-template-columns:92px minmax(0,1fr);
+  }
+  .partner-auto-card img{height:72px}
+  .partner-auto-name{font-size:20px}
+}
