@@ -4,7 +4,7 @@
   z-index: 6;
   left: 50%;
   bottom: 17%;
-  width: min(50vw, 540px, 54svh);
+  width: min(38vw, 420px, 42svh);
   transform: translateX(-50%) translateX(var(--ride-x, 0px));
   opacity: var(--ride-opacity, 1);
   pointer-events: none;
@@ -49,10 +49,16 @@ html:not(.cinematic) .elephant-still { position: absolute; width: min(60vw, 550p
 html:not(.cinematic) #the-plan .story-cast,
 html:not(.cinematic) #arrival .story-cast,
 html:not(.cinematic) #arrival .together-art { display: none; }
+@media (max-width: 980px) {
+  .journey-elephant { width: min(44vw, 360px, 38svh); }
+}
 @media (max-width: 650px) {
-  .journey-elephant { width: min(89vw, 54svh); bottom: 24%; }
-  html:not(.cinematic) .elephant-still { width: 86vw; bottom: 18%; }
+  .journey-elephant { width: min(62vw, 280px, 34svh); bottom: 22%; }
+  html:not(.cinematic) .elephant-still { width: 64vw; bottom: 18%; }
   .cinematic #arrival .story-person { width: 38vw; }
+}
+@media (max-width: 420px) {
+  .journey-elephant { width: min(56vw, 245px, 31svh); bottom: 21%; }
 }
 
 /* One continuous textured surface, with the original image as a safe fallback. */
