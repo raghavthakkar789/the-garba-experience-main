@@ -14,6 +14,22 @@
   const stage = document.querySelector(".journey-stage");
   const elephantRide = document.querySelector(".journey-elephant");
   const scenes = [...document.querySelectorAll(".scene")];
+  const hydrateNode = (node) => {
+    node?.querySelectorAll?.("[data-src]").forEach(img => {
+      img.src = img.dataset.src;
+      delete img.dataset.src;
+    });
+    node?.querySelectorAll?.("[data-srcset]").forEach(source => {
+      source.srcset = source.dataset.srcset;
+      delete source.dataset.srcset;
+    });
+  };
+  const hydrateScene = (index) => {
+    if (index < 0 || index >= scenes.length) return;
+    hydrateNode(scenes[index]);
+  };
+  // Opening + first conversation + invitation are needed immediately.
+  [0,1,2].forEach(hydrateScene);
   const sceneHasDialogue = scenes.map(scene => Boolean(scene.querySelector(".dialogue-beat")));
   // The final walking chapter needs time for every shop, within the same film.
   const sceneSpans = scenes.map((scene) => Number(scene.dataset.scrollSpan) || 1);
@@ -24,7 +40,14 @@
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
-  const jumpTo = (top, left = 0) => window.scrollTo(left, top);
+  const jumpTo = (top, left = 0) => {
+    const y = Math.max(0, Number(top) || 0);
+    window.scrollTo(left, y);
+    // WebKit can ignore programmatic window scrolling immediately after a root
+    // scroll lock / browser-chrome transition. Keep both scrolling roots aligned.
+    root.scrollTop = y;
+    if (document.body) document.body.scrollTop = y;
+  };
   const ease = (v) => {
     const x = clamp(v);
     return x * x * (3 - 2 * x);
@@ -99,7 +122,12 @@
       const pace = sceneHasDialogue[sceneIndex] ? 1 : scenes[sceneIndex]?.id === "partner-road" ? 2 : 3;
       const speed = (inStory ? travel / storySpan / 12 : 36) * pace;
       autoScrollPosition = Math.min(end, autoScrollPosition + speed * seconds);
+      const before = scrollY;
       jumpTo(autoScrollPosition);
+      if (Math.abs(scrollY - before) < .5 && Math.abs(autoScrollPosition - before) > 1) {
+        root.scrollTop = autoScrollPosition;
+        if (document.body) document.body.scrollTop = autoScrollPosition;
+      }
     }
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   }
@@ -226,7 +254,10 @@
     touchY = y;
     manualScroll(delta * 2);
   }, { passive:false });
-  for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => { touchY = null; }, { passive:true });
+  for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => {
+    touchY = null;
+    touchBlocked = false;
+  }, { passive:true });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") { cancelManualScroll(); return; }
     if (event.ctrlKey || event.metaKey || event.altKey || localScrollTarget(event.target) || document.querySelector("dialog[open]")) return;
@@ -592,7 +623,19 @@
       `${storySpan * innerHeight * 1.32}px`,
     );
     clearSceneState();
-    if (!cinematic) updateOpening(readingBoxOpen ? 1 : 0);
+    if (!cinematic) {
+      updateOpening(readingBoxOpen ? 1 : 0);
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            hydrateNode(entry.target);
+            observer.unobserve(entry.target);
+          });
+        }, { rootMargin: "80% 0px" });
+        scenes.forEach(scene => observer.observe(scene));
+      } else scenes.forEach((_, i) => hydrateScene(i));
+    }
     measure();
     if (
       cinematic &&
@@ -655,6 +698,8 @@
     animateElephant(cursor);
     let base = scenes.length - 1;
     while (base > 0 && cursor < sceneStarts[base]) base--;
+    hydrateScene(base);
+    hydrateScene(base + 1);
     const local = clamp((cursor - sceneStarts[base]) / sceneSpans[base]);
     const blendStart = scenes[base]?.id === "the-invitation" ? 0.94 : 0.7;
     const blendWindow = scenes[base]?.id === "the-invitation" ? 0.06 : 0.3;
