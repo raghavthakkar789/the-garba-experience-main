@@ -138,12 +138,19 @@ html:not(.cinematic) .garba-world { top: 65%; }
   .cinematic .journey-stage:has(#devotion.is-active) .journey-caption { opacity: 0; }
 }
 
-/* Arrival travels through the actual lotus passage as the friends enter. */
+/* Arrival now has four visual decor phases so the entrance remains readable
+   while the elephant passes: clean gate → detailed gate → detailed passage → clean passage. */
+#arrival .entry-gate-detail-art,
+#arrival .entry-passage-detail-art,
 #arrival .entry-passage-art {
-  z-index: -3;
   opacity: 0;
   pointer-events: none;
 }
+#arrival .entry-gate-detail-art { z-index: -3; }
+#arrival .entry-passage-detail-art { z-index: -2; }
+#arrival .entry-passage-art { z-index: -1; }
+.cinematic #arrival .entry-gate-detail-art { opacity: var(--gate-detail-opacity, 0); }
+.cinematic #arrival .entry-passage-detail-art { opacity: var(--passage-detail-opacity, 0); }
 .cinematic #arrival .entry-passage-art { opacity: var(--passage-opacity, 0); }
 #the-stage .scene-art img { object-position: center; }
 
