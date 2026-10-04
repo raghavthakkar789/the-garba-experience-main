@@ -258,6 +258,24 @@
     readingZonesDirty = false;
   }
 
+  function manualSceneFactor(position) {
+    // Dialogue scenes keep the current manual-scroll feel exactly as-is.
+    // Non-dialogue scenes get an additional 15% reduction.
+    if (!cinematic) {
+      const viewportY = position - scrollY + innerHeight * .5;
+      const scene = scenes.find(item => {
+        const box = item.getBoundingClientRect();
+        return viewportY >= box.top && viewportY <= box.bottom;
+      });
+      return scene?.querySelector(".dialogue-beat") ? 1 : .85;
+    }
+    if (position < journeyTop || position >= journeyTop + travel) return .85;
+    const cursor = clamp((position - journeyTop) / travel) * storySpan;
+    let index = scenes.length - 1;
+    while (index > 0 && cursor < sceneStarts[index]) index--;
+    return scenes[index]?.querySelector(".dialogue-beat") ? 1 : .85;
+  }
+
   function readingSlowdown(position) {
     if (readingZonesDirty) rebuildReadingZones();
     if (!readingZones.length) return 1;
@@ -289,7 +307,8 @@
     manualLast = now;
     const direction = Math.sign(distance);
     const slowdown = readingSlowdown(manualPosition);
-    const speed = manualMaxSpeed() * slowdown;
+    const sceneFactor = manualSceneFactor(manualPosition);
+    const speed = manualMaxSpeed() * slowdown * sceneFactor;
     const step = direction * Math.min(Math.abs(distance), speed * dt);
     manualPosition += step;
     jumpTo(manualPosition);
@@ -304,9 +323,10 @@
 
     if (!manualFrame) manualPosition = manualTarget = scrollY;
     const slowdown = readingSlowdown(manualPosition);
+    const sceneFactor = manualSceneFactor(manualPosition);
     const baseBudget = manualQueueBudget();
-    const localBudget = Math.max(64, baseBudget * slowdown);
-    const amount = delta * gain * slowdown;
+    const localBudget = Math.max(64 * sceneFactor, baseBudget * slowdown * sceneFactor);
+    const amount = delta * gain * slowdown * sceneFactor;
     const direction = Math.sign(amount);
 
     if (reduced.matches) {
