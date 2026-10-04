@@ -308,6 +308,7 @@
     entryFrame = 0;
     delete opening.dataset.entering;
     focusStoryOnArrival = false;
+    root.classList.remove("journey-finished");
     soundtrack?.cancelIntro();
   }
   function beginEntry() {
@@ -729,6 +730,8 @@
       if (!entryUnlocked && scrollY !== journeyTop)
         jumpTo(journeyTop);
     }
+    const journeyEnd = journeyTop + travel;
+    root.classList.toggle("journey-finished", cinematic && scrollY >= journeyEnd - 1);
     root.style.setProperty(
       "--progress",
       clamp(scrollY / Math.max(1, root.scrollHeight - innerHeight)).toFixed(5),
