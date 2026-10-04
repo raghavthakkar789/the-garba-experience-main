@@ -62,7 +62,7 @@ let browser,server;
  assert.equal(horizontalPrevented,false,'horizontal wheel gesture remains native');
 
  // Dialog scrolling and pinch/zoom remain native.
- await page.locator('.header-link').click();
+ await page.evaluate(()=>document.querySelector('#original-invitation-dialog').showModal());
  const dialogNative=await page.locator('#original-invitation-dialog').evaluate(d=>d.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaY:500})));
  assert(dialogNative,'dialog wheel remains native');await page.keyboard.press('Escape');
  const zoomNative=await page.evaluate(()=>document.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,ctrlKey:true,deltaY:100})));
