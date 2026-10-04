@@ -391,6 +391,9 @@ const scroll = (cursor) => {
     assert.equal(line.lang, 'gu', 'character dialogue remains Gujarati');
   assert(!d.querySelector('#the-plan .dialogue-track, #the-drive .dialogue-track'), 'pickup and drive tell the story visually');
   assert.equal(d.querySelectorAll('#devotion .flower-petal').length, 36, 'aarti has a bounded flower shower');
+  assert(d.querySelector('#partner-road .logo-megma'), 'Megma sponsor card has dedicated optical fit');
+  assert(script.includes('cursor < 5.52'), 'elephant leaves shortly after the arrival dismount');
+  assert(script.includes('(cursor - 5.34) / .14'), 'elephant exit begins immediately after riders dismount');
   assert.equal(d.querySelector('#devotion .flower-shower').getAttribute('aria-hidden'), 'true', 'flowers are decorative');
   assert(d.querySelector('#a-memory .photobooth-art source').srcset.includes('photobooth-mobile'), 'phone has a composed photobooth background');
   assert(
