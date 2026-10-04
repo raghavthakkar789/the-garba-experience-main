@@ -9,6 +9,7 @@
   let context, started = false, muted = false, introEnabled = true;
   let official = false, pageActive = true, introSuppressed = false;
   let phase = "door", musicStarted = false, session = 0;
+  let introClockActive = false;
   const current = () => tracks[phase];
   const permitted = () => started && !muted && !official && pageActive && !document.hidden
     && (phase === "music" || (introEnabled && !introSuppressed));
@@ -120,6 +121,7 @@
   }
   function begin(animated = true) {
     ++session;
+    introClockActive = animated;
     started = true;
     official = introSuppressed = musicStarted = false;
     phase = animated ? "door" : "music";
@@ -140,6 +142,7 @@
   }
   function reset() {
     ++session;
+    introClockActive = false;
     started = official = introSuppressed = musicStarted = false;
     for (const track of Object.values(tracks)) {
       track.audio.pause();
@@ -150,8 +153,27 @@
   }
   window.garbaSoundtrack = {
     begin,
-    setScene(cursor) { select(cursor < 1 ? "door" : cursor < 1.42 - 1e-6 ? "descent" : "music"); },
-    cancelIntro() { if (phase !== "music") { introSuppressed = true; sync(); } },
+    setScene(cursor) {
+      if (introClockActive) return;
+      select(cursor < 1 ? "door" : cursor < 1.42 - 1e-6 ? "descent" : "music");
+    },
+    setIntroElapsed(elapsedMs) {
+      if (!started || !introClockActive) return;
+      if (elapsedMs < 1900) select("door");
+      else if (elapsedMs < 4700) select("descent");
+      else {
+        introClockActive = false;
+        select("music");
+      }
+    },
+    finishIntroClock() {
+      introClockActive = false;
+      select("music");
+    },
+    cancelIntro() {
+      introClockActive = false;
+      if (phase !== "music") { introSuppressed = true; sync(); }
+    },
     pauseForOfficial() { official = true; sync(); },
     resumeFromOfficial() { if (official) { official = false; sync(); } },
     reset,
