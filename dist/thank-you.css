@@ -174,7 +174,7 @@
   margin-bottom:1px;
 }
 .thank-you-details .book-button{
-  min-height:34px;
+  min-height:44px;
   padding:5px 9px;
   font-size:clamp(11px,1.5svh,14px);
 }
@@ -186,7 +186,7 @@
 .thank-you-details .event-links a,
 .thank-you-details .event-links button{
   flex-direction:row;
-  min-height:32px;
+  min-height:44px;
   padding:4px 5px;
   gap:4px;
   font-size:clamp(9px,1.3svh,12px);
@@ -205,7 +205,7 @@
   width:15px;height:15px;vertical-align:-3px;
 }
 .thank-you-details .thank-you-replay{
-  min-height:30px;
+  min-height:44px;
   padding:3px;
   font-size:clamp(9px,1.3svh,12px);
 }
@@ -225,7 +225,7 @@
   :root{--closing-footer-h:82px}
   .thank-you-frame{
     padding-top:clamp(54px,8svh,68px);
-    padding-inline:8px;
+    padding-inline:20px;
   }
   .thank-you-details{width:100%}
   .thank-you-details .event-facts{gap:6px}
@@ -242,11 +242,11 @@
   .thank-you-details .thank-you-date,
   .thank-you-details .thank-you-venue{font-size:9px}
   .thank-you-details .event-facts strong{font-size:10px}
-  .thank-you-details .book-button{min-height:29px;padding:3px 6px;font-size:10px}
+  .thank-you-details .book-button{min-height:44px;padding:3px 6px;font-size:10px}
   .thank-you-details .event-links a,
-  .thank-you-details .event-links button{min-height:28px;font-size:8px;padding:2px 3px}
+  .thank-you-details .event-links button{min-height:44px;font-size:8px;padding:2px 3px}
   .thank-you-details .booking-note{font-size:7px}
   .thank-you-details .entry-note{font-size:8px;padding-top:3px}
-  .thank-you-details .thank-you-replay{min-height:25px;font-size:8px;padding:1px}
+  .thank-you-details .thank-you-replay{min-height:44px;font-size:8px;padding:1px}
   .thank-you-art{height:42px;opacity:.55}
 }
