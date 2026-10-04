@@ -53,10 +53,6 @@ html:not(.cinematic) .illustrated-scene .dialogue-beat {
   padding: 10px 13px;
 }
 
-/* The Mercedes overlay keeps its full steering wheel visible at each ratio. */
-.story-drive .drive-cockpit { transform: none; }
-.story-drive .drive-cockpit img { object-fit: fill; }
-
 /* Both friends now offer the thali towards the centre shrine. */
 #devotion .aarti-art {
   left: 50%;
