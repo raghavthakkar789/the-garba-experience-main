@@ -30,7 +30,6 @@
   };
   // Opening + first conversation + invitation are needed immediately.
   [0,1,2].forEach(hydrateScene);
-  const sceneHasDialogue = scenes.map(scene => Boolean(scene.querySelector(".dialogue-beat")));
   // The final walking chapter needs time for every shop, within the same film.
   const sceneSpans = scenes.map((scene) => Number(scene.dataset.scrollSpan) || 1);
   const sceneStarts = [];
@@ -78,14 +77,32 @@
   const sealButton = document.querySelector("#invitation-seal");
   let readingBoxOpen = false;
   let entryUnlocked = false;
-  let entryHasAdvanced = false;
   let focusStoryOnArrival = false;
   // One user gesture runs the doors and camera move on a deliberate timeline.
   const openingSoundButton = document.querySelector("#opening-sound");
   const soundtrack = window.garbaSoundtrack;
   let entryFrame = 0;
   const autoScrollButton = document.querySelector("#autoscroll-toggle");
-  let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0, autoScrollVelocity = 0;
+  // Fixed fresh-start budget: 65 seconds from opening click to absolute page bottom.
+  // The opening lands 42% into #beginning, so its full-scene duration is chosen
+  // so the remaining 58% consumes exactly 3.2 seconds.
+  const AUTO_INTRO_SECONDS = 3.5;
+  const AUTO_FINALE_SECONDS = 8;
+  const AUTO_SCENE_SECONDS = Object.freeze({
+    invitation: 3.5,
+    beginning: 3.2 / 0.58,
+    "the-invitation": 12,
+    "the-plan": 2,
+    "the-drive": 2,
+    arrival: 4.8,
+    "a-memory": 2.8,
+    devotion: 2.2,
+    "the-stage": 2.5,
+    celebration: 2,
+    "partner-road": 20,
+  });
+  const AUTO_ENTRY_ACCEL = 4.7 / AUTO_INTRO_SECONDS;
+  let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0;
   let autoWasEntering = false;
   function updateAutoScrollButton() {
     autoScrollButton.setAttribute("aria-pressed", String(autoScrolling));
@@ -121,12 +138,22 @@
       } else if (!cinematic) {
         sceneIndex = scenes.findIndex(scene => scene.getBoundingClientRect().bottom > innerHeight / 2);
       }
-      const pace = sceneHasDialogue[sceneIndex] ? 1 : scenes[sceneIndex]?.id === "partner-road" ? 2 : 3;
-      const targetSpeed = (inStory ? travel / storySpan / 12 : 36) * pace;
-      // Ease between scene speeds so entering/leaving dialogue does not feel like a gear change.
-      const velocityEase = 1 - Math.exp(-seconds / 0.34);
-      autoScrollVelocity += (targetSpeed - autoScrollVelocity) * velocityEase;
-      autoScrollPosition = Math.min(end, autoScrollPosition + autoScrollVelocity * seconds);
+      let targetSpeed;
+      if (inStory && sceneIndex >= 0) {
+        const scene = scenes[sceneIndex];
+        const duration = AUTO_SCENE_SECONDS[scene.id] || 3;
+        const distance = travel * sceneSpans[sceneIndex] / storySpan;
+        targetSpeed = distance / duration;
+      } else if (!cinematic && sceneIndex >= 0) {
+        const scene = scenes[sceneIndex];
+        const duration = AUTO_SCENE_SECONDS[scene.id] || 3;
+        targetSpeed = Math.max(1, scene.getBoundingClientRect().height) / duration;
+      } else {
+        const finaleStart = journeyTop + travel;
+        const finaleDistance = Math.max(1, end - finaleStart);
+        targetSpeed = finaleDistance / AUTO_FINALE_SECONDS;
+      }
+      autoScrollPosition = Math.min(end, autoScrollPosition + targetSpeed * seconds);
       const before = scrollY;
       jumpTo(autoScrollPosition);
       if (Math.abs(scrollY - before) < .5 && Math.abs(autoScrollPosition - before) > 1) {
@@ -146,7 +173,6 @@
     autoScrolling = true;
     autoWasEntering = Boolean(entryFrame);
     autoScrollPosition = scrollY;
-    autoScrollVelocity = 0;
     autoScrollLast = performance.now();
     updateAutoScrollButton();
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
@@ -319,7 +345,7 @@
     focusStoryOnArrival = true;
     const advance = (now) => {
       // Autoscroll fast-forwards the dialogue-free opening; the logo keeps its normal timing.
-      elapsed += (now - lastEntryTime) * (autoScrolling ? 3 : 1);
+      elapsed += (now - lastEntryTime) * (autoScrolling ? AUTO_ENTRY_ACCEL : 1);
       lastEntryTime = now;
       const doorTime = clamp(elapsed / 1900);
       // Finish the original door/camera move, then lower the friends on silk.
@@ -460,7 +486,11 @@
       const step = ease((progress - 0.17) / 0.18);
       const joined = ease((progress - 0.34) / 0.07),
         walk = ease((progress - 0.42) / 0.26);
-      const passage = ease((progress - 0.49) / 0.18);
+      const gateDetail = ease((progress - 0.18) / 0.14) * (1 - ease((progress - 0.38) / 0.12));
+      const passageDetail = ease((progress - 0.38) / 0.14) * (1 - ease((progress - 0.62) / 0.12));
+      const passage = ease((progress - 0.62) / 0.16);
+      scene.style.setProperty("--gate-detail-opacity", gateDetail.toFixed(4));
+      scene.style.setProperty("--passage-detail-opacity", passageDetail.toFixed(4));
       scene.style.setProperty("--passage-opacity", passage.toFixed(4));
       person("man", -(1 - step) * w * .1, -(1 - step) * h * .24, step * (1 - joined), .65, "walk");
       person("woman", -(1 - step) * w * .22, -(1 - step) * h * .24, step * (1 - joined), .65, "walk");
@@ -517,7 +547,7 @@
 
   // One shared elephant survives the scene dissolves; only its surroundings change.
   function animateElephant(cursor) {
-    const visible = cursor >= 3 && cursor < 5.72;
+    const visible = cursor >= 3 && cursor < 5.92;
     elephantRide.hidden = !visible;
     elephantRide.setAttribute("aria-hidden", String(!visible));
     elephantRide.dataset.walking = String(visible && (
@@ -525,11 +555,11 @@
     if (!visible) return;
     const enter = ease((cursor - 3.02) / .20);
     const travel = ease((cursor - 3.52) / 1.55);
-    const leave = ease((cursor - 5.38) / .32);
+    const leave = ease((cursor - 5.64) / .26);
     const board = ease((cursor - 3.36) / .11);
     const dismount = ease((cursor - 5.17) / .18);
     elephantRide.style.setProperty("--ride-x", `${((1 - enter) * -innerWidth * 1.2 + travel * innerWidth * .05 + leave * innerWidth * 1.2).toFixed(2)}px`);
-    elephantRide.style.setProperty("--ride-opacity", (1 - ease((cursor - 5.62) / .1)).toFixed(4));
+    elephantRide.style.setProperty("--ride-opacity", (1 - ease((cursor - 5.84) / .08)).toFixed(4));
     elephantRide.style.setProperty("--riders-opacity", (board * (1 - dismount)).toFixed(4));
     elephantRide.style.setProperty("--riders-y", `${(dismount * stageHeight * .13).toFixed(2)}px`);
   }
@@ -628,6 +658,8 @@
         "--dialogue-opacity",
         "--arrival-copy",
         "--passage-opacity",
+        "--gate-detail-opacity",
+        "--passage-detail-opacity",
         "--garba-zoom",
         "--garba-dialogue-opacity",
       ].forEach((prop) => scene.style.removeProperty(prop));
@@ -724,7 +756,6 @@
     }
     const cursor = clamp((scrollY - journeyTop) / travel) * storySpan;
     if (entryUnlocked) soundtrack?.setScene(cursor);
-    if (entryUnlocked && cursor > .05) entryHasAdvanced = true;
     animateElephant(cursor);
     let base = scenes.length - 1;
     while (base > 0 && cursor < sceneStarts[base]) base--;
@@ -1025,7 +1056,6 @@
     toast.classList.remove("visible");
     readingBoxOpen = false;
     entryUnlocked = false;
-    entryHasAdvanced = false;
     focusStoryOnArrival = false;
     const photoScene = document.querySelector("#a-memory");
     delete photoScene.dataset.photo;
