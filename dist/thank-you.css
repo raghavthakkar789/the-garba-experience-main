@@ -445,3 +445,28 @@
     padding-bottom:4px;
   }
 }
+
+
+/* Final stack order: green card -> brand strip -> decorative artwork. */
+.thank-you-details{
+  margin-bottom:0 !important;
+}
+.finale.thank-you .finale-brands{
+  flex:0 0 auto;
+}
+.thank-you-art{
+  z-index:2;
+}
+.thank-you-frame{
+  padding-bottom:clamp(88px,13.5svh,128px);
+}
+@media(max-width:650px){
+  .thank-you-frame{
+    padding-bottom:clamp(94px,14.5svh,122px);
+  }
+}
+@media(max-height:650px){
+  .thank-you-frame{
+    padding-bottom:74px;
+  }
+}
