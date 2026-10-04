@@ -416,3 +416,32 @@
     font-size:7px;
   }
 }
+
+
+/* Reserve explicit vertical order inside the final card:
+   actions/details -> brand row -> decorative artwork. */
+.thank-you-details{
+  overflow:visible;
+}
+.thank-you-details .finale-brands{
+  order:99;
+}
+.thank-you-art{
+  z-index:1;
+}
+.thank-you-details{
+  z-index:4;
+  padding-bottom:clamp(8px,1.2svh,12px);
+}
+@media(max-width:650px){
+  .thank-you-details{
+    gap:clamp(3px,.55svh,6px);
+    padding-bottom:6px;
+  }
+}
+@media(max-height:650px){
+  .thank-you-details{
+    gap:2px;
+    padding-bottom:4px;
+  }
+}
