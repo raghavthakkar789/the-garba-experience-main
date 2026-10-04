@@ -42,13 +42,11 @@
   const touchDevice = navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches;
   root.classList.toggle("ios-webkit", iOSWebKit);
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
+  const scroller = document.scrollingElement || root;
   const jumpTo = (top, left = 0) => {
     const y = Math.max(0, Number(top) || 0);
-    window.scrollTo(left, y);
-    // WebKit can ignore programmatic window scrolling immediately after a root
-    // scroll lock / browser-chrome transition. Keep both scrolling roots aligned.
-    root.scrollTop = y;
-    if (document.body) document.body.scrollTop = y;
+    if (left) window.scrollTo(left, y);
+    else scroller.scrollTop = y;
   };
   const ease = (v) => {
     const x = clamp(v);
@@ -157,10 +155,8 @@
       autoScrollPosition = Math.min(end, autoScrollPosition + targetSpeed * seconds);
       const before = scrollY;
       jumpTo(autoScrollPosition);
-      if (Math.abs(scrollY - before) < .5 && Math.abs(autoScrollPosition - before) > 1) {
-        root.scrollTop = autoScrollPosition;
-        if (document.body) document.body.scrollTop = autoScrollPosition;
-      }
+      if (Math.abs(scrollY - before) < .5 && Math.abs(autoScrollPosition - before) > 1)
+        scroller.scrollTop = autoScrollPosition;
     }
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   }
@@ -222,7 +218,7 @@
   }
   function holdDialogue(position) {
     dialogueHold = position;
-    holdUntil = performance.now() + 380;
+    holdUntil = performance.now() + 180;
     touchBlocked = touchY !== null;
     manualTarget = position;
   }
@@ -255,7 +251,7 @@
     const now = performance.now(), idle = now - lastManualInput;
     lastManualInput = now;
     if (dialogueHold !== null) {
-      if (now < holdUntil || idle < 130 || repeated || touchBlocked) return;
+      if (now < holdUntil || idle < 80 || repeated || touchBlocked) return;
       dialogueHold = null;
     } else if (!manualFrame) {
       const current = dialogueStops().find(y => Math.abs(y - scrollY) <= 2);
@@ -281,28 +277,16 @@
   }
   const localScrollTarget = target => target?.closest?.("dialog, input, textarea, select, [contenteditable=true], iframe");
   addEventListener("wheel", event => {
-    if (event.ctrlKey || event.metaKey || localScrollTarget(event.target) || document.querySelector("dialog[open]") || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-    event.preventDefault();
-    manualScroll(event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1));
-  }, { passive:false });
-  addEventListener("touchstart", event => {
+    if (event.ctrlKey || event.metaKey || localScrollTarget(event.target) || document.querySelector("dialog[open]")) return;
+    if (autoScrolling) stopAutoScroll();
     stopManualMotion();
-    touchBlocked = false;
-    if (touchDevice) {
-      touchY = null; // Native touch scrolling is more reliable and lower-latency on phones/tablets.
-      return;
-    }
-    touchY = event.touches?.length === 1 && !localScrollTarget(event.target) && !scrollControl(event.target) ? event.touches[0].clientY : null;
   }, { passive:true });
-  addEventListener("touchmove", event => {
-    if (touchDevice) return;
-    if (touchY === null || event.touches.length !== 1 || document.querySelector("dialog[open]")) return;
-    if (!event.cancelable) return;
-    event.preventDefault();
-    const y = event.touches[0].clientY, delta = touchY - y;
-    touchY = y;
-    manualScroll(delta * 2);
-  }, { passive:false });
+  addEventListener("touchstart", event => {
+    touchBlocked = false;
+    touchY = null;
+    stopManualMotion();
+    if (!scrollControl(event.target) && autoScrolling) stopAutoScroll();
+  }, { passive:true });
   for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => {
     touchY = null;
     touchBlocked = false;
