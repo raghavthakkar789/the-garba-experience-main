@@ -447,8 +447,6 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
   background: var(--card-accent, #e9bac4);
   border-right: 1px solid #35514440;
 }
-.partner-monogram { font: 600 28px/1 Georgia, serif; color: #244337; }
-.partner-monogram[hidden] { display: none; }
 .shop-sign, .cinematic .partner-road .shop-sign {
   display: grid;
   grid-template-columns: 30% minmax(0, 1fr);
@@ -491,7 +489,6 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
   .cinematic .partner-road .shop-role { font-size: 5px; line-height: 1.1; letter-spacing: 0; margin-bottom: 2px; }
   .cinematic .partner-road .shop-name, .cinematic .partner-road .shop-lettering { font-size: 7px; line-height: 1.1; }
   .cinematic .partner-road .shop-sign .partner-logo-slot { padding: 1px; }
-  .cinematic .partner-road .shop-sign .partner-monogram { font-size: 9px; }
   .partner-auto-card { grid-template-columns: 78px minmax(0, 1fr); padding: 0; gap: 0; }
   .partner-auto-card img { width: 100%; height: 60px; }
   .partner-card-copy { padding: 14px; }
@@ -506,7 +503,6 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
   .cinematic .partner-road .shop-name,
   .cinematic .partner-road .shop-lettering { font-size: clamp(7px, 1.1vw, 11px); line-height: 1.1; }
   .cinematic .partner-road .partner-logo-slot { padding: 2px; }
-  .cinematic .partner-road .partner-monogram { font-size: clamp(9px, 1.6vw, 16px); }
 }
 
 
