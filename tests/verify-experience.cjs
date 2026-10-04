@@ -325,6 +325,15 @@ const scroll = (cursor) => {
   shops[0].querySelector('button').click();
   assert(d.querySelector('#partner-dialog').open,'shop boards open readable details');
   assert.equal(d.querySelector('#partner-dialog-name').textContent,'Eventzz Planet');
+  assert(d.querySelector('#beginning').textContent.includes('ચાલ આજે એક અલગ જ અનુભવ કરાવવા તને લઇ જાઉ.'),'updated second dialogue is present');
+  assert(d.querySelector('#the-invitation').textContent.includes('પણ ક્યાં અને ક્યારે?'),'updated man dialogue is present');
+  assert(d.querySelector('#the-invitation').textContent.includes('9th October, The Garba Experience માં, Kinjal Dave ના તાલે ગરબા કરવા'),'updated elephant/pass dialogue is present');
+  for (const name of ['Eventzz Planet','Saregama Entertainment']) {
+    const plaque=[...d.querySelectorAll('.brand-plaque')].find(el=>el.dataset.brandName===name);
+    assert.equal(plaque?.dataset.brandRole,'Presented by',name+' brand card says Presented by');
+  }
+  const featured=[...d.querySelectorAll('#partner-road .partner-shop')].slice(0,2);
+  assert(featured.every(shop=>shop.querySelector('.shop-role')?.textContent.trim()==='Presented by'),'lead partner shop cards say Presented by');
   d.querySelector('#partner-dialog [data-close]').click();
   assert(!d.querySelector('#partner-dialog').open);
   // Model shop frontages independently of the path's progress calculation.
