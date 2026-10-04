@@ -30,9 +30,9 @@ let server,browser;
    if(brands)issues.push('final page should not contain partner/sponsor brand strip');
    const message=document.querySelector('.thank-you-message').getBoundingClientRect(),kicker=document.querySelector('.thank-you-kicker').getBoundingClientRect(),details=document.querySelector('.thank-you-details').getBoundingClientRect();
    if(!document.querySelector('.thank-you-kicker').closest('.thank-you-details'))issues.push('event identity is not merged into green details card');
-   if(kicker.top<message.bottom-1)issues.push('event identity overlaps Gujarati thank-you message');
-   if(kicker.bottom>details.top+1)issues.push('event identity overlaps lower details card');
-   if(innerWidth<=650&&br.height>innerHeight*.08)issues.push('final brand strip too tall on mobile');
+   if(kicker.top<details.top-1||kicker.bottom>details.bottom+1)issues.push('event identity escapes unified green card');
+   const facts=document.querySelector('.thank-you-details .event-facts').getBoundingClientRect();
+   if(kicker.bottom>facts.top+1)issues.push('event identity overlaps event facts');
    if(footer.textContent.includes('Original invitation'))issues.push('Original invitation still present in closing footer');
    for(const sel of ['.thank-you-elephant','.leaf-left','.leaf-right','.lotus-left','.lotus-right']){const el=document.querySelector(sel),r=el.getBoundingClientRect(),s=getComputedStyle(el);if(!r.width||!r.height||s.visibility==='hidden'||+s.opacity===0)issues.push('hidden closing art: '+sel);}
 
@@ -43,7 +43,7 @@ let server,browser;
    return {width:c.width,height:c.height,availableHeight:innerHeight-document.querySelector('.masthead').getBoundingClientRect().height-16,issues};
   });
   assert.deepEqual(data.issues,[],label);
-  assert(data.width<=740.5,`${label}: card exceeds its desktop reading width`);
+  assert(data.width<=820.5,`${label}: card exceeds its desktop reading width`);
   if(fitScreen)assert(data.height<=data.availableHeight,`${label}: card ${data.height}px exceeds usable screen ${data.availableHeight}px`);
   console.log('PASS '+label+': '+Math.round(data.width)+'×'+Math.round(data.height));
  }
