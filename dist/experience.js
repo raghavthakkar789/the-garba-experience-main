@@ -477,16 +477,23 @@
       const doorDuration = 1425;
       const descentDuration = 2800;
       const entryDuration = doorDuration + descentDuration;
+      const soundDuration = 4700;
       const doorTime = clamp(elapsed / doorDuration);
+      // Audio keeps the original clock: door until 1.9s, descent until 4.7s.
+      soundtrack?.setIntroElapsed?.(elapsed);
       // Door/camera opening is 25% faster; the character descent keeps its timing.
       const progress = elapsed <= doorDuration
         ? doorTime < 0.66
           ? 0.48 * ease(doorTime / 0.66)
           : 0.48 + 0.52 * ease((doorTime - 0.66) / 0.34)
         : 1 + 0.42 * clamp((elapsed - doorDuration) / descentDuration);
-      jumpTo(from + (to - from) * progress / 1.42);
-      if (elapsed < entryDuration) entryFrame = requestAnimationFrame(advance);
-      else {
+      jumpTo(from + (to - from) * Math.min(progress, 1.42) / 1.42);
+      if (elapsed < soundDuration) {
+        // Visual movement finishes at 4.225s; keep the lightweight frame alive
+        // only long enough for the original intro audio clock to finish at 4.7s.
+        entryFrame = requestAnimationFrame(advance);
+      } else {
+        soundtrack?.finishIntroClock?.();
         entryFrame = 0;
         delete opening.dataset.entering;
         if (autoScrolling) {
