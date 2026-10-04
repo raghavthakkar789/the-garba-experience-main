@@ -573,3 +573,19 @@
     font-size:7px;
   }
 }
+
+
+/* Final-page logo scale pass: +50% from the current approved size. */
+.thank-you-logo{
+  width:clamp(121.5px,18svh,193.5px) !important;
+}
+@media(max-width:650px){
+  .thank-you-logo{
+    width:clamp(121.5px,18svh,193.5px) !important;
+  }
+}
+@media(max-height:650px){
+  .thank-you-logo{
+    width:103.5px !important;
+  }
+}
