@@ -1636,3 +1636,40 @@ html.ios-webkit dialog::backdrop {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
+
+
+/* Closing footer shares the final viewport with the Thank You card. */
+footer{
+  box-sizing:border-box;
+  height:var(--closing-footer-h,64px);
+  min-height:var(--closing-footer-h,64px);
+  padding:7px var(--gutter);
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  align-items:center;
+  font-size:10px;
+}
+footer>a,
+footer>p{
+  min-width:0;
+  margin:0;
+  text-align:center !important;
+  line-height:1.2;
+}
+footer>a:first-child{font-size:clamp(13px,1.5vw,18px)}
+footer>a:nth-of-type(2){font-size:10px}
+@media(max-width:650px){
+  footer{
+    padding:6px 10px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:repeat(2,minmax(0,1fr));
+    gap:3px 8px;
+    font-size:8px;
+  }
+  footer>a:first-child{font-size:12px}
+  footer>a:nth-of-type(2){font-size:8px}
+}
+@media(max-height:650px){
+  footer{padding:4px 8px;font-size:7px}
+  footer>a:first-child{font-size:10px}
+}
