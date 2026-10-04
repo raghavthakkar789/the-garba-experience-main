@@ -13,7 +13,9 @@
   box-sizing: border-box;
 }
 html {
-  scroll-behavior: smooth;
+  /* Story motion is driven by JS. Global smooth scrolling makes every RAF-driven
+     scrollTo start a second browser animation, causing lag/jitter. */
+  scroll-behavior: auto;
   scroll-padding-top: 80px;
 }
 body {
