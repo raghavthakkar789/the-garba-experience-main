@@ -191,7 +191,7 @@ const scroll = (cursor) => {
   for (const id of ['arrival', 'the-stage', 'devotion', 'partner-road']) {
     assert(d.querySelectorAll(`#${id} .guest`).length >= 8, `${id} contains separate crowd figures`);
   }
-  assert(d.querySelectorAll('#the-stage .guest-performer').length >= 9, 'singer and musicians have animated playing poses');
+  assert.equal(d.querySelectorAll('#the-stage .guest-performer').length, 5, 'trimmed stage keeps five distinct performer poses');
   assert(d.querySelectorAll('#devotion .guest-pray').length === 8, 'eight guests pray facing the shrine');
   for (const guest of d.querySelectorAll('.guest')) {
     const src = guest.style.getPropertyValue('--sprite').match(/url\(([^)]+)\)/)[1];
