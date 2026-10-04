@@ -19,10 +19,6 @@
     const colours = getComputedStyle(shop);
     for (const property of ['--card-bg', '--card-accent'])
       card.style.setProperty(property, colours.getPropertyValue(property));
-    const monogram = card.querySelector('.partner-monogram');
-    const source = shop.querySelector('.partner-monogram');
-    monogram.hidden = !source;
-    monogram.textContent = source?.textContent || '';
   }
   function closeAutoCard() {
     autoCard.hidden = true;
@@ -94,7 +90,6 @@
         button.classList.contains('brand-tge') ? 'tge' : 'partner';
       dialog.style.removeProperty('--card-bg');
       dialog.style.removeProperty('--card-accent');
-      dialog.querySelector('.partner-monogram').hidden = true;
       dialog.querySelector('#partner-dialog-name').textContent = button.dataset.brandName;
       dialog.querySelector('#partner-dialog-role').textContent = button.dataset.brandRole;
       dialogLogo.src = button.querySelector('img').getAttribute('src');
