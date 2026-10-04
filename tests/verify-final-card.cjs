@@ -26,13 +26,10 @@ let server,browser;
    }
    for(const el of card.querySelectorAll('a,button')){if(el.getBoundingClientRect().height<44)issues.push('small tap target');}
    const finale=document.querySelector('.finale.thank-you'),footer=document.querySelector('footer'),fr=finale.getBoundingClientRect(),fo=footer.getBoundingClientRect();
-   const brands=document.querySelector('.finale-brands'),br=brands.getBoundingClientRect();
-   if(brands.closest('.thank-you-details'))issues.push('final brand strip must sit outside green details card');
-   const cardBottom=document.querySelector('.thank-you-details').getBoundingClientRect().bottom;
-   const artTop=document.querySelector('.thank-you-art').getBoundingClientRect().top;
-   if(br.top<cardBottom-1)issues.push('final brand strip overlaps green details card');
-   if(br.bottom>artTop+1)issues.push('final brand strip overlaps decorative artwork');
+   const brands=document.querySelector('.finale-brands');
+   if(brands)issues.push('final page should not contain partner/sponsor brand strip');
    const message=document.querySelector('.thank-you-message').getBoundingClientRect(),kicker=document.querySelector('.thank-you-kicker').getBoundingClientRect(),details=document.querySelector('.thank-you-details').getBoundingClientRect();
+   if(!document.querySelector('.thank-you-kicker').closest('.thank-you-details'))issues.push('event identity is not merged into green details card');
    if(kicker.top<message.bottom-1)issues.push('event identity overlaps Gujarati thank-you message');
    if(kicker.bottom>details.top+1)issues.push('event identity overlaps lower details card');
    if(innerWidth<=650&&br.height>innerHeight*.08)issues.push('final brand strip too tall on mobile');
