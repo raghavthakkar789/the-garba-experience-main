@@ -39,7 +39,6 @@
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const iOSWebKit = (/iP(?:hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) && /WebKit/.test(navigator.userAgent);
-  const touchDevice = navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches;
   root.classList.toggle("ios-webkit", iOSWebKit);
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
   const scroller = document.scrollingElement || root;
@@ -362,7 +361,8 @@
   }, { passive:false });
 
   addEventListener("touchstart", event => {
-    if (event.touches?.length !== 1 || localScrollableTarget(event.target) || scrollControl(event.target)) {
+    if (event.touches?.length !== 1 || !event.target.closest?.("main") ||
+        localScrollableTarget(event.target) || scrollControl(event.target)) {
       touchY = touchX = null;
       touchOwned = false;
       return;
@@ -951,6 +951,14 @@
     }
   }, true);
   document.fonts?.ready.then(schedule);
+  if ("ResizeObserver" in window) {
+    const readingResizeObserver = new ResizeObserver(() => {
+      readingZonesDirty = true;
+    });
+    readingResizeObserver.observe(journey);
+    const details = document.querySelector("#details");
+    if (details) readingResizeObserver.observe(details);
+  }
   function scrollToScene(scene, behavior = "smooth") {
     cancelManualScroll();
     stopAutoScroll();
