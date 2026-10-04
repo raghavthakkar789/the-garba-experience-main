@@ -35,6 +35,8 @@ let server,browser;
    for(const sel of ['.thank-you-elephant','.leaf-left','.leaf-right','.lotus-left','.lotus-right']){const el=document.querySelector(sel),r=el.getBoundingClientRect(),s=getComputedStyle(el);if(!r.width||!r.height||s.visibility==='hidden'||+s.opacity===0)issues.push('hidden closing art: '+sel);}
 
    if(Math.abs((fr.height+fo.height)-innerHeight)>2)issues.push('closing screen does not equal one viewport');
+   const partner=document.querySelector('#partner-road').getBoundingClientRect();
+   if(fr.top<partner.bottom-1&&fr.top>=0)issues.push('Thank You overlaps partner scene geometry');
    if(c.bottom>fr.bottom+1)issues.push('details card clipped below final viewport');
    return {width:c.width,height:c.height,availableHeight:innerHeight-document.querySelector('.masthead').getBoundingClientRect().height-16,issues};
   });
