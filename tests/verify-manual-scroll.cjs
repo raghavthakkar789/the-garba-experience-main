@@ -16,6 +16,14 @@ let browser,server;
  const stops=await page.evaluate(()=>{const scenes=[...document.querySelectorAll('.scene')],journey=document.querySelector('.journey'),stage=document.querySelector('.journey-stage'),spans=scenes.map(s=>Number(s.dataset.scrollSpan)||1),total=spans.reduce((a,b)=>a+b,0),travel=journey.offsetHeight-stage.clientHeight,top=journey.getBoundingClientRect().top+scrollY;let start=0;const out=[];for(let i=0;i<scenes.length;i++){for(const line of scenes[i].querySelectorAll('.dialogue-beat')){const beat=Number(line.dataset.at)||0,local=scenes[i].id==='beginning'&&beat===0?.42:Math.max(.06,beat+.015);out.push(top+(start+local*spans[i])/total*travel);}start+=spans[i];}return out;});
  const zone=stops[3];
 
+ // Dialogue scenes keep the current factor; non-dialogue scenes are another 15% slower.
+ const sceneFactors=await page.evaluate(()=>{const scenes=[...document.querySelectorAll('.scene')];return {
+  dialogue:scenes.find(s=>s.querySelector('.dialogue-beat'))?.id,
+  nondialogue:scenes.find(s=>!s.querySelector('.dialogue-beat'))?.id
+ };});
+ assert(sceneFactors.dialogue,'at least one dialogue scene exists');
+ assert(sceneFactors.nondialogue,'at least one non-dialogue scene exists');
+
  // Gentle normal-area wheel remains responsive.
  await place(zone-600);const gentleStart=await page.evaluate(()=>scrollY);await wheel(120);await page.waitForTimeout(450);const gentle=await page.evaluate(y=>scrollY-y,gentleStart);
  assert(gentle>90,'gentle wheel should move responsively');
