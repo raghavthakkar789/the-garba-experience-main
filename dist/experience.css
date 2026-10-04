@@ -1675,3 +1675,20 @@ footer>a:nth-of-type(2){font-size:10px}
   footer{padding:4px 8px;font-size:7px}
   footer>a:first-child{font-size:10px}
 }
+
+
+/* Final footer after removing Original invitation. */
+footer{
+  grid-template-columns:1.2fr 1fr 1.2fr;
+}
+footer> :nth-child(2){text-align:center !important}
+footer> :last-child{text-align:right !important}
+@media(max-width:650px){
+  footer{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto;
+  }
+  footer> :first-child{grid-column:1 / -1}
+  footer> :nth-child(2),
+  footer> :last-child{text-align:center !important}
+}
