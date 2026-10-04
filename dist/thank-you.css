@@ -102,3 +102,151 @@
 .thank-you-lotus { height:70%; width:30%; object-fit:contain; object-position:center bottom; bottom:0; z-index:3; }
 .lotus-left { left:0; }
 .lotus-right { right:0; }
+
+
+/* Final-screen compaction: Thank You + footer together occupy one viewport. */
+:root{--closing-footer-h:64px}
+.finale.thank-you{
+  height:calc(100svh - var(--closing-footer-h));
+  min-height:calc(100svh - var(--closing-footer-h));
+  max-height:calc(100svh - var(--closing-footer-h));
+  overflow:hidden;
+}
+.thank-you-scene{
+  position:relative;
+  box-sizing:border-box;
+  height:100%;
+  min-height:0;
+  padding:clamp(6px,1.2svh,14px) clamp(8px,2vw,20px) 0;
+  gap:clamp(4px,.8svh,10px);
+}
+.thank-you-frame{
+  box-sizing:border-box;
+  height:100%;
+  min-height:0;
+  align-content:start;
+  padding:clamp(58px,8.5svh,78px) clamp(12px,4vw,56px) 0;
+  gap:clamp(4px,.8svh,10px);
+}
+.thank-you-logo{
+  width:clamp(54px,8svh,86px);
+}
+.thank-you-message h2{
+  font-size:clamp(1.75rem,5svh,3.3rem);
+  line-height:1;
+}
+.thank-you-message p{
+  margin:clamp(3px,.6svh,7px) auto 0;
+  font-size:clamp(.78rem,1.7svh,1rem);
+  line-height:1.45;
+}
+.thank-you-details{
+  width:min(100%,820px);
+  gap:clamp(4px,.65svh,8px);
+  padding:clamp(7px,1.2svh,12px) clamp(8px,1.5vw,14px);
+  border-radius:12px;
+}
+.thank-you-details>.eyebrow{
+  font-size:clamp(8px,1.15svh,10px);
+  line-height:1.2;
+}
+.thank-you-details .event-facts{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(7px,1.2vw,14px);
+}
+.thank-you-details .thank-you-date,
+.thank-you-details .thank-you-venue{
+  grid-template-columns:16px minmax(0,1fr);
+  gap:6px;
+  font-size:clamp(10px,1.45svh,13px);
+  line-height:1.25;
+}
+.thank-you-details .event-facts .ui-icon{
+  width:16px;height:16px;margin-top:1px;
+}
+.thank-you-details .event-facts strong{
+  font-size:clamp(11px,1.65svh,15px);
+  line-height:1.2;
+}
+.thank-you-details .event-facts .fact-label{
+  font-size:clamp(7px,1svh,9px);
+  line-height:1.15;
+  margin-bottom:1px;
+}
+.thank-you-details .book-button{
+  min-height:34px;
+  padding:5px 9px;
+  font-size:clamp(11px,1.5svh,14px);
+}
+.thank-you-details .event-links{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:5px;
+}
+.thank-you-details .event-links> :last-child{grid-column:auto}
+.thank-you-details .event-links a,
+.thank-you-details .event-links button{
+  flex-direction:row;
+  min-height:32px;
+  padding:4px 5px;
+  gap:4px;
+  font-size:clamp(9px,1.3svh,12px);
+}
+.thank-you-details .thank-you-actions .ui-icon{width:16px;height:16px}
+.thank-you-details .booking-note{
+  font-size:clamp(8px,1.1svh,10px);
+  line-height:1.2;
+}
+.thank-you-details .entry-note{
+  padding-top:5px;
+  font-size:clamp(9px,1.3svh,12px);
+  line-height:1.25;
+}
+.thank-you-details .entry-note .ui-icon{
+  width:15px;height:15px;vertical-align:-3px;
+}
+.thank-you-details .thank-you-replay{
+  min-height:30px;
+  padding:3px;
+  font-size:clamp(9px,1.3svh,12px);
+}
+.thank-you-art{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:min(100%,900px);
+  height:clamp(48px,9svh,82px);
+  opacity:.72;
+  z-index:-1;
+}
+.thank-you-arch{opacity:.88}
+
+@media(max-width:650px){
+  :root{--closing-footer-h:82px}
+  .thank-you-frame{
+    padding-top:clamp(54px,8svh,68px);
+    padding-inline:8px;
+  }
+  .thank-you-details{width:100%}
+  .thank-you-details .event-facts{gap:6px}
+  .thank-you-details .control-label{line-height:1.1}
+}
+@media(max-height:650px){
+  :root{--closing-footer-h:76px}
+  .thank-you-frame{padding-top:48px;gap:3px}
+  .thank-you-logo{width:46px}
+  .thank-you-message h2{font-size:1.55rem}
+  .thank-you-message p{font-size:.68rem;line-height:1.25;margin-top:2px}
+  .thank-you-details{padding:5px 7px;gap:3px}
+  .thank-you-details>.eyebrow{font-size:7px}
+  .thank-you-details .thank-you-date,
+  .thank-you-details .thank-you-venue{font-size:9px}
+  .thank-you-details .event-facts strong{font-size:10px}
+  .thank-you-details .book-button{min-height:29px;padding:3px 6px;font-size:10px}
+  .thank-you-details .event-links a,
+  .thank-you-details .event-links button{min-height:28px;font-size:8px;padding:2px 3px}
+  .thank-you-details .booking-note{font-size:7px}
+  .thank-you-details .entry-note{font-size:8px;padding-top:3px}
+  .thank-you-details .thank-you-replay{min-height:25px;font-size:8px;padding:1px}
+  .thank-you-art{height:42px;opacity:.55}
+}
