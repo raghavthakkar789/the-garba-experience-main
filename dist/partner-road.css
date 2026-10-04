@@ -833,3 +833,14 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
     border-width:1.5px !important;
   }
 }
+
+
+/* Keep every partner overlay contained inside the partner scene during the handoff
+   to the final Thank You screen. */
+.cinematic #partner-road{
+  contain:paint;
+  overflow:hidden;
+}
+.cinematic #partner-road .partner-auto-card{
+  max-height:calc(100% - 24px);
+}
