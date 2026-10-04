@@ -470,3 +470,106 @@
     padding-bottom:74px;
   }
 }
+
+
+/* Final-page consolidation:
+   one green card, larger logo, smaller THANK YOU, no closing sponsor strip. */
+.thank-you-logo{
+  width:clamp(81px,12svh,129px) !important;
+}
+
+.thank-you-message h2{
+  font-size:clamp(1.3125rem,3.75svh,2.475rem) !important;
+}
+
+.thank-you-message{
+  margin-bottom:clamp(7px,1svh,12px);
+}
+
+.thank-you-message p{
+  margin-top:clamp(5px,.75svh,9px);
+}
+
+.thank-you-details{
+  width:min(100%,820px);
+  gap:clamp(7px,1svh,12px);
+  padding:clamp(10px,1.45svh,16px) clamp(11px,1.7vw,17px);
+  margin-top:clamp(3px,.5svh,6px);
+}
+
+.thank-you-details .thank-you-kicker{
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:0 0 clamp(7px,1svh,10px);
+  border:0;
+  border-bottom:1px solid #8f7a52;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  color:#f0dba9;
+  font-size:clamp(8px,1.15svh,11px);
+  letter-spacing:.07em;
+}
+
+.thank-you-details .event-facts{
+  margin-top:0;
+}
+
+.thank-you-art{
+  margin-top:0;
+}
+
+.thank-you-frame{
+  gap:clamp(6px,.9svh,10px);
+  padding-bottom:clamp(88px,13.5svh,126px);
+}
+
+@media(max-width:650px){
+  .thank-you-logo{
+    width:clamp(81px,12svh,129px) !important;
+  }
+
+  .thank-you-message h2{
+    font-size:clamp(1.3125rem,3.75svh,2.475rem) !important;
+  }
+
+  .thank-you-frame{
+    gap:clamp(5px,.8svh,8px);
+    padding-top:clamp(44px,6.5svh,54px);
+  }
+
+  .thank-you-details{
+    gap:clamp(5px,.75svh,8px);
+    padding:8px 9px;
+  }
+
+  .thank-you-details .thank-you-kicker{
+    padding-bottom:7px;
+    font-size:clamp(7px,1.05svh,9px);
+  }
+}
+
+@media(max-height:650px){
+  .thank-you-logo{
+    width:69px !important;
+  }
+
+  .thank-you-message h2{
+    font-size:1.1625rem !important;
+  }
+
+  .thank-you-message{
+    margin-bottom:4px;
+  }
+
+  .thank-you-details{
+    gap:4px;
+    padding:6px 7px;
+  }
+
+  .thank-you-details .thank-you-kicker{
+    padding-bottom:5px;
+    font-size:7px;
+  }
+}
