@@ -121,7 +121,7 @@
   function advanceAutoScroll(now) {
     if (!autoScrolling) return;
     if (document.hidden || document.querySelector("dialog[open]")) { stopAutoScroll(); return; }
-    const seconds = Math.min(Math.max(0, now - autoScrollLast), 64) / 1000;
+    const seconds = Math.min(Math.max(0, now - autoScrollLast), 120) / 1000;
     autoScrollLast = now;
     // The door/descent sequence retains sole control until landing.
     if (entryFrame) { autoScrollPosition = scrollY; autoWasEntering = true; }
