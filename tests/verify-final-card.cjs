@@ -25,6 +25,9 @@ let server,browser;
     for(const node of el.childNodes){if(node.nodeType!==Node.TEXT_NODE||!node.textContent.trim())continue;const range=document.createRange();range.selectNodeContents(node);for(const line of range.getClientRects()){if(line.left<c.left-1||line.right>c.right+1||line.bottom>c.bottom+1)issues.push('text outside card: '+node.textContent);}}
    }
    for(const el of card.querySelectorAll('a,button')){if(el.getBoundingClientRect().height<44)issues.push('small tap target');}
+   const finale=document.querySelector('.finale.thank-you'),footer=document.querySelector('footer'),fr=finale.getBoundingClientRect(),fo=footer.getBoundingClientRect();
+   if(Math.abs((fr.height+fo.height)-innerHeight)>2)issues.push('closing screen does not equal one viewport');
+   if(c.bottom>fr.bottom+1)issues.push('details card clipped below final viewport');
    return {width:c.width,height:c.height,availableHeight:innerHeight-document.querySelector('.masthead').getBoundingClientRect().height-16,issues};
   });
   assert.deepEqual(data.issues,[],label);
