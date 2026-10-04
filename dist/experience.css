@@ -1717,3 +1717,19 @@ html.journey-finished .journey-stage .road-friends{
   visibility:hidden !important;
   pointer-events:none !important;
 }
+
+
+/* Controlled manual story scrolling. Once the invitation is open, JS owns
+   single-finger vertical movement inside main so it can apply bounded velocity
+   and reading-area slowdowns. Horizontal gestures and pinch zoom remain native. */
+html.manual-scroll-owned main {
+  touch-action: pan-x pinch-zoom;
+}
+html.manual-scroll-owned dialog,
+html.manual-scroll-owned input,
+html.manual-scroll-owned textarea,
+html.manual-scroll-owned select,
+html.manual-scroll-owned [contenteditable="true"],
+html.manual-scroll-owned iframe {
+  touch-action: auto;
+}
