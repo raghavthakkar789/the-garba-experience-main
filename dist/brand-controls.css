@@ -186,3 +186,58 @@ footer a { min-height:44px; padding:8px 4px; }
     height:36px;
   }
 }
+
+
+/* Final-page brands now live inside the Thank You details card. */
+.finale.thank-you .thank-you-details .finale-brands{
+  position:relative !important;
+  inset:auto !important;
+  left:auto !important;
+  top:auto !important;
+  transform:none !important;
+  z-index:auto;
+  width:100% !important;
+  height:auto !important;
+  margin:2px 0 0;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-auto-rows:clamp(38px,5.2svh,52px);
+  gap:clamp(4px,.7vw,7px);
+}
+.finale.thank-you .thank-you-details .finale-brands .brand-plaque{
+  min-width:0;
+  min-height:0;
+  height:100%;
+  padding:3px 5px;
+  border-radius:7px;
+}
+.finale.thank-you .thank-you-details .finale-brands .brand-logo{
+  min-width:0;
+  min-height:0;
+  height:100%;
+}
+.finale.thank-you .thank-you-details .finale-brands .brand-plaque img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+@media(max-width:650px){
+  .finale.thank-you .thank-you-details .finale-brands{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    grid-auto-rows:clamp(32px,4.8svh,40px);
+    gap:3px;
+    margin-top:1px;
+  }
+  .finale.thank-you .thank-you-details .finale-brands .brand-plaque{
+    padding:2px 3px;
+    border-radius:5px;
+  }
+}
+@media(max-width:360px){
+  .finale.thank-you .thank-you-details .finale-brands{
+    grid-auto-rows:30px;
+    gap:2px;
+  }
+  .finale.thank-you .thank-you-details .finale-brands .brand-plaque{
+    padding:1px 2px;
+  }
+}
