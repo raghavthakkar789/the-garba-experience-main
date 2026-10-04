@@ -193,114 +193,235 @@
     autoScrollLast = performance.now();
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   });
-  // Manual gestures are bounded and cannot carry momentum past a dialogue stop.
+  // Manual scrolling: bounded momentum with continuous content-aware slowdowns.
+  // No snapping, forced pauses or checkpoint locks.
   let manualFrame = 0, manualTarget = 0, manualPosition = 0, manualLast = 0;
-  let dialogueHold = null, holdUntil = 0, lastManualInput = -Infinity;
-  let touchY = null, touchBlocked = false;
-  function stopManualMotion() {
-    cancelAnimationFrame(manualFrame);
+  let touchY = null, touchX = null, touchOwned = false;
+  let readingZones = [], readingZonesDirty = true;
+
+  const manualMaxSpeed = () => clamp(innerHeight * 1.6, 800, 1600);
+  const manualQueueBudget = () => Math.min(700, innerHeight * .85);
+  const slowdownRadius = () => clamp(innerHeight * .26, 160, 260);
+
+  function stopManualMotion(sync = true) {
+    if (manualFrame) cancelAnimationFrame(manualFrame);
     manualFrame = 0;
+    if (sync) manualPosition = manualTarget = scrollY;
   }
   function cancelManualScroll() {
     stopManualMotion();
-    dialogueHold = null;
-    holdUntil = 0;
-    lastManualInput = -Infinity;
+    touchY = touchX = null;
+    touchOwned = false;
   }
-  function dialogueStops() {
-    if (!cinematic) return [...document.querySelectorAll(".dialogue-beat")].map(line =>
-      Math.max(0, line.getBoundingClientRect().top + scrollY - innerHeight * .35));
-    return scenes.flatMap((scene, index) => [...scene.querySelectorAll(".dialogue-beat")].map(line => {
-      const beat = Number(line.dataset.at) || 0;
-      const local = scene.id === "beginning" && beat === 0 ? .42 : Math.max(.06, beat + .015);
-      return journeyTop + (sceneStarts[index] + local * sceneSpans[index]) / storySpan * travel;
-    }));
+
+  function addVirtualReadingZone(sceneId, local) {
+    const index = scenes.findIndex(scene => scene.id === sceneId);
+    if (index < 0) return;
+    readingZones.push(
+      journeyTop + (sceneStarts[index] + clamp(local) * sceneSpans[index]) / storySpan * travel,
+    );
   }
-  function holdDialogue(position) {
-    dialogueHold = position;
-    holdUntil = performance.now() + 180;
-    touchBlocked = touchY !== null;
-    manualTarget = position;
+
+  function rebuildReadingZones() {
+    readingZones = [];
+    if (cinematic) {
+      scenes.forEach((scene, index) => {
+        scene.querySelectorAll(".dialogue-beat").forEach(line => {
+          const beat = Number(line.dataset.at) || 0;
+          const local = scene.id === "beginning" && beat === 0 ? .42 : Math.max(.06, beat + .015);
+          readingZones.push(
+            journeyTop + (sceneStarts[index] + local * sceneSpans[index]) / storySpan * travel,
+          );
+        });
+      });
+      // Key non-dialogue messages that deserve a gentle read-through.
+      addVirtualReadingZone("the-invitation", .60); // pass / QR reveal
+      addVirtualReadingZone("a-memory", .62);       // photo caption / keepsake moment
+      addVirtualReadingZone("partner-road", .08);  // sponsor heading / introduction
+    } else {
+      document.querySelectorAll(".dialogue-beat").forEach(line => {
+        const box = line.getBoundingClientRect();
+        readingZones.push(box.top + scrollY + box.height / 2 - innerHeight * .45);
+      });
+    }
+
+    document.querySelectorAll(
+      ".thank-you-message, .thank-you-kicker, .entry-note, .booking-note, footer p",
+    ).forEach(element => {
+      const box = element.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      readingZones.push(box.top + scrollY + box.height / 2 - innerHeight * .45);
+    });
+
+    readingZones = readingZones
+      .map(value => clamp(value, 0, Math.max(0, root.scrollHeight - innerHeight)))
+      .sort((a, b) => a - b);
+    readingZonesDirty = false;
   }
+
+  function readingSlowdown(position) {
+    if (readingZonesDirty) rebuildReadingZones();
+    if (!readingZones.length) return 1;
+    const radius = slowdownRadius();
+    let nearest = Infinity;
+    for (const zone of readingZones) {
+      const distance = Math.abs(zone - position);
+      if (distance < nearest) nearest = distance;
+      if (zone > position + radius && distance > nearest) break;
+    }
+    if (nearest >= radius) return 1;
+    const t = clamp(nearest / radius);
+    const smooth = t * t * (3 - 2 * t);
+    return .22 + .78 * smooth;
+  }
+
   function advanceManualScroll(now) {
     manualFrame = 0;
     if (autoScrolling || entryFrame || document.hidden || document.querySelector("dialog[open]")) {
-      cancelManualScroll(); return;
+      stopManualMotion(); return;
     }
-    const direction = Math.sign(manualTarget - manualPosition);
-    const dt = Math.min(40, Math.max(0, now - manualLast)) / 1000;
-    manualLast = now;
-    // Exponential interpolation gives wheel/trackpad input a soft acceleration/deceleration curve.
     const distance = manualTarget - manualPosition;
-    const alpha = 1 - Math.exp(-dt / 0.065);
-    const easedStep = distance * alpha;
-    const maxStep = clamp(innerHeight * 2.6, 1200, 2400) * dt;
-    const step = Math.sign(easedStep) * Math.min(Math.abs(easedStep), maxStep);
-    const next = manualPosition + step;
-    const stops = dialogueStops();
-    const stop = direction > 0
-      ? stops.find(y => y > manualPosition + .5 && y <= next + .5)
-      : stops.slice().reverse().find(y => y < manualPosition - .5 && y >= next - .5);
-    manualPosition = stop === undefined ? next : stop;
-    jumpTo(manualPosition);
-    if (stop !== undefined) { holdDialogue(stop); return; }
-    if (Math.abs(manualTarget - manualPosition) > .5) manualFrame = requestAnimationFrame(advanceManualScroll);
-  }
-  function manualScroll(delta, repeated = false) {
-    if (!delta || (cinematic && !entryUnlocked)) return;
-    const now = performance.now(), idle = now - lastManualInput;
-    lastManualInput = now;
-    if (dialogueHold !== null) {
-      if (now < holdUntil || idle < 80 || repeated || touchBlocked) return;
-      dialogueHold = null;
-    } else if (!manualFrame) {
-      const current = dialogueStops().find(y => Math.abs(y - scrollY) <= 2);
-      if (current !== undefined) { holdDialogue(current); return; }
+    if (Math.abs(distance) <= .5) {
+      manualPosition = manualTarget;
+      jumpTo(manualPosition);
+      return;
     }
-    if (!manualFrame) { manualPosition = scrollY; manualTarget = scrollY; }
-    const budget = Math.min(520, innerHeight * .62);
-    const amount = clamp(delta, -budget, budget);
-    if (Math.sign(amount) !== Math.sign(manualTarget - manualPosition)) manualTarget = manualPosition;
-    manualTarget = clamp(manualTarget + amount, Math.max(0, manualPosition - budget),
-      Math.min(root.scrollHeight - innerHeight, manualPosition + budget));
-    // Reduced-motion reading mode uses small immediate steps, with the same dialogue gates.
+    const dt = Math.min(48, Math.max(0, now - manualLast)) / 1000;
+    manualLast = now;
+    const direction = Math.sign(distance);
+    const slowdown = readingSlowdown(manualPosition);
+    const speed = manualMaxSpeed() * slowdown;
+    const step = direction * Math.min(Math.abs(distance), speed * dt);
+    manualPosition += step;
+    jumpTo(manualPosition);
+    if (Math.abs(manualTarget - manualPosition) > .5)
+      manualFrame = requestAnimationFrame(advanceManualScroll);
+  }
+
+  function manualScroll(delta, gain = 1.5) {
+    if (!delta || (cinematic && !entryUnlocked)) return;
+    if (autoScrolling) stopAutoScroll();
+    if (entryFrame) cancelEntry();
+
+    if (!manualFrame) manualPosition = manualTarget = scrollY;
+    const slowdown = readingSlowdown(manualPosition);
+    const baseBudget = manualQueueBudget();
+    const localBudget = Math.max(64, baseBudget * slowdown);
+    const amount = delta * gain * slowdown;
+    const direction = Math.sign(amount);
+
     if (reduced.matches) {
-      const direction = Math.sign(manualTarget - manualPosition), stops = dialogueStops();
-      const stop = direction > 0 ? stops.find(y => y > manualPosition + .5 && y <= manualTarget)
-        : stops.slice().reverse().find(y => y < manualPosition - .5 && y >= manualTarget);
-      if (stop !== undefined) { manualTarget = stop; holdDialogue(stop); }
-      jumpTo(manualTarget);
-    } else if (!manualFrame) {
-      manualLast = now;
+      const immediate = clamp(amount, -localBudget, localBudget);
+      manualPosition = manualTarget = clamp(
+        scrollY + immediate,
+        0,
+        Math.max(0, root.scrollHeight - innerHeight),
+      );
+      jumpTo(manualPosition);
+      return;
+    }
+
+    if (direction && Math.sign(manualTarget - manualPosition) !== direction)
+      manualTarget = manualPosition;
+
+    manualTarget = clamp(
+      manualTarget + amount,
+      Math.max(0, manualPosition - localBudget),
+      Math.min(root.scrollHeight - innerHeight, manualPosition + localBudget),
+    );
+
+    if (!manualFrame) {
+      manualLast = performance.now();
       manualFrame = requestAnimationFrame(advanceManualScroll);
     }
   }
-  const localScrollTarget = target => target?.closest?.("dialog, input, textarea, select, [contenteditable=true], iframe");
+
+  function localScrollableTarget(target, delta = 0) {
+    for (let element = target?.nodeType === 1 ? target : target?.parentElement;
+      element && element !== document.body; element = element.parentElement) {
+      if (element.matches?.("dialog, input, textarea, select, [contenteditable=true], iframe"))
+        return true;
+      const style = getComputedStyle(element);
+      if (!/(auto|scroll|overlay)/.test(style.overflowY) || element.scrollHeight <= element.clientHeight + 1)
+        continue;
+      if (!delta) return true;
+      if (delta > 0 && element.scrollTop < element.scrollHeight - element.clientHeight - 1) return true;
+      if (delta < 0 && element.scrollTop > 1) return true;
+    }
+    return false;
+  }
+
   addEventListener("wheel", event => {
-    if (event.ctrlKey || event.metaKey || localScrollTarget(event.target) || document.querySelector("dialog[open]")) return;
+    if (event.ctrlKey || event.metaKey || document.querySelector("dialog[open]")) return;
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+    const normalized = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1);
+    if (localScrollableTarget(event.target, normalized)) return;
+    if (!entryUnlocked && cinematic) return;
+    if (event.cancelable) event.preventDefault();
+    manualScroll(normalized, 1.5);
+  }, { passive:false });
+
+  addEventListener("touchstart", event => {
+    if (event.touches?.length !== 1 || localScrollableTarget(event.target) || scrollControl(event.target)) {
+      touchY = touchX = null;
+      touchOwned = false;
+      return;
+    }
     if (autoScrolling) stopAutoScroll();
     stopManualMotion();
+    touchY = event.touches[0].clientY;
+    touchX = event.touches[0].clientX;
+    touchOwned = false;
   }, { passive:true });
-  addEventListener("touchstart", event => {
-    touchBlocked = false;
-    touchY = null;
-    stopManualMotion();
-    if (!scrollControl(event.target) && autoScrolling) stopAutoScroll();
-  }, { passive:true });
+
+  addEventListener("touchmove", event => {
+    if (touchY === null || touchX === null || event.touches?.length !== 1 ||
+        document.querySelector("dialog[open]")) return;
+    const touch = event.touches[0];
+    const dy = touchY - touch.clientY;
+    const dx = touchX - touch.clientX;
+    if (!touchOwned) {
+      if (Math.abs(dx) > Math.abs(dy) * 1.05) {
+        touchY = touch.clientY;
+        touchX = touch.clientX;
+        return;
+      }
+      if (Math.abs(dy) < 2) return;
+      touchOwned = true;
+    }
+    touchY = touch.clientY;
+    touchX = touch.clientX;
+    // When vertical scrolling is app-owned, keep moving even if WebKit reports
+    // a non-cancelable touchmove; only prevent native scrolling when allowed.
+    if (event.cancelable) event.preventDefault();
+    manualScroll(dy, 1.0);
+  }, { passive:false });
+
   for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => {
-    touchY = null;
-    touchBlocked = false;
+    touchY = touchX = null;
+    touchOwned = false;
   }, { passive:true });
+
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") { cancelManualScroll(); return; }
-    if (event.ctrlKey || event.metaKey || event.altKey || localScrollTarget(event.target) || document.querySelector("dialog[open]")) return;
+    if (event.ctrlKey || event.metaKey || event.altKey || document.querySelector("dialog[open]")) return;
+    if (localScrollableTarget(event.target)) return;
     if ([" ", "Enter"].includes(event.key) && event.target.closest?.("button,a,summary")) return;
-    const direction = { ArrowDown:1, PageDown:1, End:1, ArrowUp:-1, PageUp:-1, Home:-1, " ":event.shiftKey ? -1 : 1 }[event.key];
-    if (!direction) return;
+    const page = Math.min(700, innerHeight * .75);
+    const delta = {
+      ArrowDown: 72, ArrowUp: -72,
+      PageDown: page, PageUp: -page,
+      End: page, Home: -page,
+      " ": event.shiftKey ? -page : page,
+    }[event.key];
+    if (!delta) return;
     event.preventDefault();
-    manualScroll(direction * (event.key.startsWith("Arrow") ? 48 : 640), event.repeat);
+    manualScroll(delta, 1);
   });
-  document.addEventListener("pointerdown", () => stopManualMotion(), { passive:true });
+
+  document.addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse" && !scrollControl(event.target)) stopManualMotion();
+  }, { passive:true });
   document.addEventListener("visibilitychange", () => { if (document.hidden) cancelManualScroll(); });
   addEventListener("pagehide", cancelManualScroll);
   function cancelEntry() {
@@ -655,6 +776,7 @@
     stageHeight = stage.clientHeight || innerHeight;
     journeyTop = journey.getBoundingClientRect().top + scrollY;
     travel = Math.max(1, journey.offsetHeight - stageHeight);
+    readingZonesDirty = true;
   }
   function setMotion(preservePlace = false) {
     cancelManualScroll();
@@ -727,6 +849,7 @@
       // reload/reset. iOS elastic overscroll can momentarily report the top position
       // and used to relock the entire story.
       root.classList.toggle("invitation-locked", !entryUnlocked);
+      root.classList.toggle("manual-scroll-owned", entryUnlocked);
       if (!entryUnlocked && scrollY !== journeyTop)
         jumpTo(journeyTop);
     }
@@ -822,7 +945,10 @@
   }
   // Re-anchor after responsive art and Gujarati fonts finish decoding/layout.
   document.addEventListener("load", (event) => {
-    if (event.target instanceof HTMLImageElement) schedule();
+    if (event.target instanceof HTMLImageElement) {
+      readingZonesDirty = true;
+      schedule();
+    }
   }, true);
   document.fonts?.ready.then(schedule);
   function scrollToScene(scene, behavior = "smooth") {
@@ -1054,6 +1180,7 @@
     toast.classList.remove("visible");
     readingBoxOpen = false;
     entryUnlocked = false;
+    root.classList.remove("manual-scroll-owned");
     focusStoryOnArrival = false;
     const photoScene = document.querySelector("#a-memory");
     delete photoScene.dataset.photo;
