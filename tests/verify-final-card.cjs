@@ -26,6 +26,11 @@ let server,browser;
    }
    for(const el of card.querySelectorAll('a,button')){if(el.getBoundingClientRect().height<44)issues.push('small tap target');}
    const finale=document.querySelector('.finale.thank-you'),footer=document.querySelector('footer'),fr=finale.getBoundingClientRect(),fo=footer.getBoundingClientRect();
+   const brands=document.querySelector('.finale-brands'),br=brands.getBoundingClientRect();
+   if(innerWidth<=650&&br.height>innerHeight*.08)issues.push('final brand strip too tall on mobile');
+   if(footer.textContent.includes('Original invitation'))issues.push('Original invitation still present in closing footer');
+   for(const sel of ['.thank-you-elephant','.leaf-left','.leaf-right','.lotus-left','.lotus-right']){const el=document.querySelector(sel),r=el.getBoundingClientRect(),s=getComputedStyle(el);if(!r.width||!r.height||s.visibility==='hidden'||+s.opacity===0)issues.push('hidden closing art: '+sel);}
+
    if(Math.abs((fr.height+fo.height)-innerHeight)>2)issues.push('closing screen does not equal one viewport');
    if(c.bottom>fr.bottom+1)issues.push('details card clipped below final viewport');
    return {width:c.width,height:c.height,availableHeight:innerHeight-document.querySelector('.masthead').getBoundingClientRect().height-16,issues};
