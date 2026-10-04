@@ -250,3 +250,99 @@
   .thank-you-details .thank-you-replay{min-height:44px;font-size:8px;padding:1px}
   .thank-you-art{height:42px;opacity:.55}
 }
+
+
+/* Closing artwork visibility pass: keep all botanical/elephant elements clearly visible
+   while the content card stays above them. */
+.thank-you-arch{
+  z-index:0;
+}
+.thank-you-logo,
+.thank-you-message,
+.thank-you-details{
+  position:relative;
+  z-index:3;
+}
+.thank-you-art{
+  z-index:1;
+  opacity:1;
+  height:clamp(82px,13svh,126px);
+  bottom:0;
+  overflow:visible;
+}
+.thank-you-elephant{
+  height:92%;
+  width:50%;
+  left:50%;
+  bottom:0;
+  z-index:2;
+  object-fit:contain;
+  object-position:center bottom;
+}
+.thank-you-leaf{
+  height:100%;
+  width:34%;
+  bottom:0;
+  z-index:1;
+  object-fit:contain;
+  object-position:center bottom;
+  opacity:.96;
+}
+.leaf-left{left:0}
+.leaf-right{right:0;height:100%}
+.thank-you-lotus{
+  height:66%;
+  width:24%;
+  bottom:0;
+  z-index:3;
+  object-fit:contain;
+  object-position:center bottom;
+}
+.lotus-left{left:4%}
+.lotus-right{right:4%}
+
+@media(max-width:650px){
+  .thank-you-frame{
+    padding-top:clamp(48px,7svh,58px);
+  }
+  .thank-you-art{
+    width:100%;
+    height:clamp(88px,14svh,118px);
+  }
+  .thank-you-elephant{
+    width:46%;
+    height:88%;
+  }
+  .thank-you-leaf{
+    width:37%;
+    height:100%;
+  }
+  .thank-you-lotus{
+    width:26%;
+    height:62%;
+  }
+  .lotus-left{left:1%}
+  .lotus-right{right:1%}
+}
+@media(max-width:380px){
+  .thank-you-art{
+    height:94px;
+  }
+  .thank-you-elephant{
+    width:44%;
+  }
+  .thank-you-leaf{
+    width:39%;
+  }
+  .thank-you-lotus{
+    width:27%;
+  }
+}
+@media(max-height:650px){
+  .thank-you-art{
+    height:72px;
+  }
+  .thank-you-elephant{width:40%}
+  .thank-you-leaf{width:31%}
+  .thank-you-lotus{width:22%}
+}
