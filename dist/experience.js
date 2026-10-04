@@ -95,9 +95,9 @@
     "the-plan": 2,
     "the-drive": 2,
     arrival: 4.8,
-    "a-memory": 2.8,
+    "a-memory": 3,
     devotion: 2.2,
-    "the-stage": 2.5,
+    "the-stage": 2.3,
     celebration: 2,
     "partner-road": 20,
   });
