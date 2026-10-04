@@ -654,19 +654,19 @@
 
   // One shared elephant survives the scene dissolves; only its surroundings change.
   function animateElephant(cursor) {
-    const visible = cursor >= 3 && cursor < 5.92;
+    const visible = cursor >= 3 && cursor < 5.52;
     elephantRide.hidden = !visible;
     elephantRide.setAttribute("aria-hidden", String(!visible));
     elephantRide.dataset.walking = String(visible && (
-      cursor < 3.22 || (cursor > 3.5 && cursor < 5.08) || cursor > 5.38));
+      cursor < 3.22 || (cursor > 3.5 && cursor < 5.08) || cursor > 5.34));
     if (!visible) return;
     const enter = ease((cursor - 3.02) / .20);
     const travel = ease((cursor - 3.52) / 1.55);
-    const leave = ease((cursor - 5.64) / .26);
+    const leave = ease((cursor - 5.34) / .14);
     const board = ease((cursor - 3.36) / .11);
     const dismount = ease((cursor - 5.17) / .18);
     elephantRide.style.setProperty("--ride-x", `${((1 - enter) * -innerWidth * 1.2 + travel * innerWidth * .05 + leave * innerWidth * 1.2).toFixed(2)}px`);
-    elephantRide.style.setProperty("--ride-opacity", (1 - ease((cursor - 5.84) / .08)).toFixed(4));
+    elephantRide.style.setProperty("--ride-opacity", (1 - ease((cursor - 5.36) / .12)).toFixed(4));
     elephantRide.style.setProperty("--riders-opacity", (board * (1 - dismount)).toFixed(4));
     elephantRide.style.setProperty("--riders-y", `${(dismount * stageHeight * .13).toFixed(2)}px`);
   }
