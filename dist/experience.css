@@ -1692,3 +1692,28 @@ footer> :last-child{text-align:right !important}
   footer> :nth-child(2),
   footer> :last-child{text-align:center !important}
 }
+
+
+/* Hard visual boundary between the cinematic journey and the closing screen.
+   Prevent high-z-index partner elements from painting over the Thank You section. */
+.journey{
+  isolation:isolate;
+  z-index:0;
+}
+.finale.thank-you{
+  position:relative;
+  isolation:isolate;
+  z-index:5;
+  background-color:#003724;
+  contain:paint;
+}
+html.journey-finished .journey-stage{
+  pointer-events:none;
+}
+html.journey-finished .journey-stage .partner-auto-card,
+html.journey-finished .journey-stage .partner-dialog,
+html.journey-finished .journey-stage .road-friends{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
