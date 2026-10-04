@@ -39,6 +39,7 @@
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const iOSWebKit = (/iP(?:hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) && /WebKit/.test(navigator.userAgent);
+  const touchDevice = navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches;
   root.classList.toggle("ios-webkit", iOSWebKit);
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
   const jumpTo = (top, left = 0) => {
@@ -235,9 +236,9 @@
     manualLast = now;
     // Exponential interpolation gives wheel/trackpad input a soft acceleration/deceleration curve.
     const distance = manualTarget - manualPosition;
-    const alpha = 1 - Math.exp(-dt / 0.105);
+    const alpha = 1 - Math.exp(-dt / 0.065);
     const easedStep = distance * alpha;
-    const maxStep = clamp(innerHeight * 2.05, 980, 1900) * dt;
+    const maxStep = clamp(innerHeight * 2.6, 1200, 2400) * dt;
     const step = Math.sign(easedStep) * Math.min(Math.abs(easedStep), maxStep);
     const next = manualPosition + step;
     const stops = dialogueStops();
@@ -261,8 +262,8 @@
       if (current !== undefined) { holdDialogue(current); return; }
     }
     if (!manualFrame) { manualPosition = scrollY; manualTarget = scrollY; }
-    const budget = Math.min(620, innerHeight * .72);
-    const amount = clamp(delta * 1.18, -budget, budget);
+    const budget = Math.min(520, innerHeight * .62);
+    const amount = clamp(delta, -budget, budget);
     if (Math.sign(amount) !== Math.sign(manualTarget - manualPosition)) manualTarget = manualPosition;
     manualTarget = clamp(manualTarget + amount, Math.max(0, manualPosition - budget),
       Math.min(root.scrollHeight - innerHeight, manualPosition + budget));
@@ -287,14 +288,14 @@
   addEventListener("touchstart", event => {
     stopManualMotion();
     touchBlocked = false;
-    if (iOSWebKit) {
-      touchY = null; // Native WebKit scrolling is more reliable than preventDefault-driven touch motion.
+    if (touchDevice) {
+      touchY = null; // Native touch scrolling is more reliable and lower-latency on phones/tablets.
       return;
     }
     touchY = event.touches?.length === 1 && !localScrollTarget(event.target) && !scrollControl(event.target) ? event.touches[0].clientY : null;
   }, { passive:true });
   addEventListener("touchmove", event => {
-    if (iOSWebKit) return;
+    if (touchDevice) return;
     if (touchY === null || event.touches.length !== 1 || document.querySelector("dialog[open]")) return;
     if (!event.cancelable) return;
     event.preventDefault();
@@ -672,8 +673,8 @@
   }
   function setMotion(preservePlace = false) {
     cancelManualScroll();
-    stopAutoScroll();
-    cancelEntry();
+    const wasAutoScrolling = autoScrolling;
+    const wasEntering = Boolean(entryFrame);
     const previous = activeIndex;
     const wasCinematic = cinematic;
     const wasWithin = scrollY < journeyTop + journey.offsetHeight;
@@ -724,6 +725,14 @@
       jumpTo(top);
     }
     renderScroll();
+    if (wasAutoScrolling) {
+      autoScrolling = true;
+      autoScrollPosition = scrollY;
+      autoScrollLast = performance.now();
+      updateAutoScrollButton();
+      if (!autoScrollFrame && !wasEntering)
+        autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
+    }
   }
   function renderScroll() {
     frame = 0;
@@ -854,16 +863,17 @@
   addEventListener(
     "resize",
     () => {
-      if (
-        innerWidth !== lastWidth ||
-        (innerHeight >= 640) !== (lastHeight >= 640) ||
-        Math.abs(innerHeight - lastHeight) > 180
-      ) {
-        lastWidth = innerWidth;
-        lastHeight = innerHeight;
-        setMotion(true);
-      } else {
+      const widthChanged = innerWidth !== lastWidth;
+      const modeChanged = (innerHeight >= 640) !== (lastHeight >= 640);
+      lastWidth = innerWidth;
+      lastHeight = innerHeight;
+      if (widthChanged || modeChanged) setMotion(true);
+      else {
         measure();
+        if (autoScrolling) {
+          autoScrollPosition = scrollY;
+          autoScrollLast = performance.now();
+        }
         schedule();
       }
     },
@@ -872,7 +882,8 @@
   reduced.addEventListener("change", () => setMotion(true));
   setMotion();
   document.fonts?.ready.then(() => {
-    setMotion(true);
+    measure();
+    schedule();
   });
   const hashScene = scenes.find((s) => `#${s.id}` === location.hash);
   if (hashScene)
