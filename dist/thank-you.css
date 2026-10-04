@@ -346,3 +346,73 @@
   .thank-you-leaf{width:31%}
   .thank-you-lotus{width:22%}
 }
+
+
+/* Event identity sits in its own protected band between the Gujarati thank-you
+   copy and the lower event/actions/artwork. It must never overlap either region. */
+.thank-you-kicker{
+  position:relative;
+  z-index:4;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:min(92%,620px);
+  min-height:30px;
+  margin:clamp(2px,.45svh,5px) auto clamp(3px,.6svh,7px);
+  padding:5px 14px;
+  border:1px solid #c9a86b;
+  border-radius:999px;
+  background:#082f25f2;
+  box-shadow:0 5px 16px #001d2340;
+  color:#f0dba9;
+  font:600 clamp(8px,1.15svh,11px)/1.2 var(--sans);
+  letter-spacing:.08em;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:normal;
+}
+.thank-you-message{
+  position:relative;
+  z-index:4;
+  margin-bottom:0;
+}
+.thank-you-details{
+  position:relative;
+  z-index:4;
+  margin-top:0;
+}
+.thank-you-art{
+  pointer-events:none;
+}
+
+/* The standalone kicker replaces the old in-card eyebrow. */
+.thank-you-details>.eyebrow{
+  display:none;
+}
+
+@media(max-width:650px){
+  .thank-you-kicker{
+    width:min(94%,390px);
+    min-height:27px;
+    margin:2px auto 4px;
+    padding:4px 9px;
+    font-size:clamp(7px,1.1svh,9px);
+    letter-spacing:.055em;
+  }
+}
+@media(max-width:360px){
+  .thank-you-kicker{
+    width:96%;
+    padding-inline:6px;
+    font-size:7px;
+    letter-spacing:.035em;
+  }
+}
+@media(max-height:650px){
+  .thank-you-kicker{
+    min-height:24px;
+    margin:1px auto 2px;
+    padding:3px 7px;
+    font-size:7px;
+  }
+}
