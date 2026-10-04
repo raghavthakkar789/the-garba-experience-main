@@ -562,12 +562,22 @@ html:not(.cinematic):not(.read-mode) .partner-road-heading>span {
   line-height:1.08;
 }
 
-/* The supplied Megma PNG has a large transparent canvas; crop optically with scale. */
-.shop-logo.logo-megma,
+/* Megma logo: compensate for its transparent canvas without cropping the mark. */
+.shop-logo.logo-megma{
+  transform:scale(2.15);
+  transform-origin:center;
+  object-fit:contain;
+}
 #partner-dialog-logo[src$="megma.png"],
 .partner-auto-card img[src$="megma.png"]{
-  transform:scale(3.4);
+  transform:scale(1.75);
   transform-origin:center;
+  object-fit:contain;
+}
+@media(max-width:650px){
+  .shop-logo.logo-megma{ transform:scale(1.9); }
+  #partner-dialog-logo[src$="megma.png"],
+  .partner-auto-card img[src$="megma.png"]{ transform:scale(1.55); }
 }
 .shop-logo.logo-hungrito{ transform:scale(.95); }
 .shop-logo.logo-alpha{ transform:scale(.95); }
