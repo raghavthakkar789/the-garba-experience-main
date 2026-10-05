@@ -234,7 +234,7 @@
   });
   // Manual scrolling: bounded momentum with continuous content-aware slowdowns.
   // No snapping, forced pauses or checkpoint locks.
-  let manualFrame = 0, manualTarget = 0, manualPosition = 0, manualLast = 0;
+  let manualFrame = 0, manualTarget = 0, manualPosition = 0, manualLast = 0, manualVelocity = 0;
   let touchY = null, touchX = null, touchOwned = false;
   let androidPointerId = null, androidPointerY = null, androidPointerX = null, androidPointerOwned = false;
   let readingZones = [], readingZonesDirty = true;
@@ -246,6 +246,7 @@
   function stopManualMotion(sync = true) {
     if (manualFrame) cancelAnimationFrame(manualFrame);
     manualFrame = 0;
+    manualVelocity = 0;
     if (sync) manualPosition = manualTarget = scrollY;
   }
   function cancelManualScroll() {
@@ -338,22 +339,38 @@
     if (autoScrolling || entryFrame || document.hidden || document.querySelector("dialog[open]")) {
       stopManualMotion(); return;
     }
+
     const distance = manualTarget - manualPosition;
-    if (Math.abs(distance) <= .5) {
+    const dt = Math.min(48, Math.max(0, now - manualLast)) / 1000;
+    manualLast = now;
+
+    if (Math.abs(distance) <= .35 && Math.abs(manualVelocity) <= 2) {
+      manualVelocity = 0;
       manualPosition = manualTarget;
       jumpTo(manualPosition);
       return;
     }
-    const dt = Math.min(48, Math.max(0, now - manualLast)) / 1000;
-    manualLast = now;
-    const direction = Math.sign(distance);
+
     const slowdown = readingSlowdown(manualPosition);
     const sceneFactor = manualSceneFactor(manualPosition);
-    const speed = manualMaxSpeed() * slowdown * sceneFactor;
-    const step = direction * Math.min(Math.abs(distance), speed * dt);
+    const maxSpeed = manualMaxSpeed() * slowdown * sceneFactor;
+
+    // Remove the hard-scroll component completely: velocity approaches the
+    // requested motion gradually instead of snapping to the speed ceiling.
+    const desiredVelocity = clamp(distance * 3.2, -maxSpeed, maxSpeed);
+    const response = 1 - Math.exp(-dt / .22);
+    manualVelocity += (desiredVelocity - manualVelocity) * response;
+
+    let step = manualVelocity * dt;
+    if (Math.abs(step) > Math.abs(distance)) {
+      step = distance;
+      manualVelocity = 0;
+    }
+
     manualPosition += step;
     jumpTo(manualPosition);
-    if (Math.abs(manualTarget - manualPosition) > .5)
+
+    if (Math.abs(manualTarget - manualPosition) > .35 || Math.abs(manualVelocity) > 2)
       manualFrame = requestAnimationFrame(advanceManualScroll);
   }
 
@@ -381,8 +398,10 @@
       return;
     }
 
-    if (direction && Math.sign(manualTarget - manualPosition) !== direction)
+    if (direction && Math.sign(manualTarget - manualPosition) !== direction) {
       manualTarget = manualPosition;
+      manualVelocity *= .25;
+    }
 
     manualTarget = clamp(
       manualTarget + amount,
