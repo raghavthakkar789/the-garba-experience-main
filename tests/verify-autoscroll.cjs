@@ -7,6 +7,8 @@ assert(source.includes('iosAutoPositionAt'),'iOS autoscroll derives position fro
 assert(source.includes('Store semantic progress, not absolute pixels'),'iOS timeline survives Safari layout changes');
 assert(source.includes('kind:"story"'),'iOS timeline maps elapsed time to live scene geometry');
 assert(source.includes('kind:"finale"'),'iOS finale maps against live document height');
+assert(source.includes('const writeInterval = (lowPowerRender || longFrameScore >= 4) ? 50 : 33'),'iOS autoscroll caps scroll writes to 30Hz and falls back to 20Hz under jank');
+assert(source.includes('autoScrolling ? 180 : 72'),'iOS autoscroll reduces dialogue layout frequency');
 assert(source.includes('if (iOSWebKit)'),'iOS has a dedicated autoscroll path');
 let browser,server;
 (async()=>{
