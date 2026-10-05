@@ -16,6 +16,7 @@
   const scenes = [...document.querySelectorAll(".scene")];
   const hydrateNode = (node) => {
     node?.querySelectorAll?.("[data-src]").forEach(img => {
+      img.decoding = "async";
       img.src = img.dataset.src;
       delete img.dataset.src;
     });
@@ -68,6 +69,14 @@
   let stageHeight = 1;
   let lastWidth = innerWidth;
   let lastHeight = innerHeight;
+  let stableViewportHeight = Math.max(1, Math.round(window.visualViewport?.height || innerHeight));
+  function updateStableViewport(force = false) {
+    const current = Math.max(1, Math.round(window.visualViewport?.height || innerHeight));
+    if (force || Math.abs(current - stableViewportHeight) > Math.max(120, stableViewportHeight * .18))
+      stableViewportHeight = current;
+    root.style.setProperty("--app-height", stableViewportHeight + "px");
+  }
+  updateStableViewport(true);
   const opening = document.querySelector(".opening-scene");
   const openingButtons = [
     ...document.querySelectorAll("[data-open-invitation]"),
@@ -381,6 +390,11 @@
   }, { passive:false });
 
   addEventListener("touchstart", event => {
+    if (iOSWebKit) {
+      if (!scrollControl(event.target) && autoScrolling) stopAutoScroll();
+      stopManualMotion();
+      return;
+    }
     if (event.touches?.length !== 1 || !event.target.closest?.("main") ||
         localScrollableTarget(event.target) || scrollControl(event.target)) {
       touchY = touchX = null;
@@ -395,6 +409,7 @@
   }, { passive:true });
 
   addEventListener("touchmove", event => {
+    if (iOSWebKit) return;
     if (touchY === null || touchX === null || event.touches?.length !== 1 ||
         document.querySelector("dialog[open]")) return;
     const touch = event.touches[0];
@@ -803,7 +818,7 @@
     }
   }
   function measure() {
-    stageHeight = stage.clientHeight || innerHeight;
+    stageHeight = stage.clientHeight || stableViewportHeight || innerHeight;
     journeyTop = journey.getBoundingClientRect().top + scrollY;
     travel = Math.max(1, journey.offsetHeight - stageHeight);
     readingZonesDirty = true;
@@ -822,7 +837,7 @@
     // Use a stable viewport height; mobile address-bar changes do not reshape the story.
     journey.style.setProperty(
       "--journey-height",
-      `${storySpan * innerHeight * 1.32}px`,
+      `${storySpan * stableViewportHeight * 1.32}px`,
     );
     clearSceneState();
     if (!cinematic) {
@@ -879,7 +894,7 @@
       // reload/reset. iOS elastic overscroll can momentarily report the top position
       // and used to relock the entire story.
       root.classList.toggle("invitation-locked", !entryUnlocked);
-      root.classList.toggle("manual-scroll-owned", entryUnlocked);
+      root.classList.toggle("manual-scroll-owned", entryUnlocked && !iOSWebKit);
       if (!entryUnlocked && scrollY !== journeyTop)
         jumpTo(journeyTop);
     }
@@ -922,6 +937,7 @@
       const active = i === selected;
       scene.classList.toggle("is-visible", visible);
       scene.classList.toggle("is-active", active);
+      scene.classList.toggle("is-nearby", Math.abs(i - selected) <= 1);
       scene.inert = !active;
       scene.setAttribute("aria-hidden", String(!active));
       if (i <= selected + 1)
@@ -1018,8 +1034,11 @@
       const modeChanged = (innerHeight >= 640) !== (lastHeight >= 640);
       lastWidth = innerWidth;
       lastHeight = innerHeight;
-      if (widthChanged || modeChanged) setMotion(true);
-      else {
+      if (widthChanged || modeChanged) {
+        updateStableViewport(true);
+        setMotion(true);
+      } else {
+        updateStableViewport(false);
         measure();
         if (autoScrolling) {
           autoScrollPosition = scrollY;
@@ -1030,6 +1049,20 @@
     },
     { passive: true },
   );
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", () => {
+      if (!iOSWebKit) return;
+      updateStableViewport(false);
+      readingZonesDirty = true;
+      schedule();
+    }, { passive:true });
+  }
+  addEventListener("orientationchange", () => {
+    setTimeout(() => {
+      updateStableViewport(true);
+      setMotion(true);
+    }, 120);
+  }, { passive:true });
   reduced.addEventListener("change", () => setMotion(true));
   setMotion();
   document.fonts?.ready.then(() => {
