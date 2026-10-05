@@ -1774,3 +1774,23 @@ html.ios-webkit .progress-line{
   transform:scaleX(var(--progress,0));
   will-change:auto;
 }
+
+
+/* Android Chrome/WebView: vertical touch is app-controlled so manual easing
+   and reading slowdowns actually apply. Horizontal gestures and pinch zoom remain native. */
+html.android-web.manual-scroll-owned main{
+  touch-action:pan-x pinch-zoom !important;
+  overscroll-behavior-y:contain;
+}
+html.android-web.manual-scroll-owned body{
+  overscroll-behavior-y:contain;
+}
+html.android-web.manual-scroll-owned dialog,
+html.android-web.manual-scroll-owned input,
+html.android-web.manual-scroll-owned textarea,
+html.android-web.manual-scroll-owned select,
+html.android-web.manual-scroll-owned [contenteditable="true"],
+html.android-web.manual-scroll-owned iframe{
+  touch-action:auto !important;
+  overscroll-behavior:auto;
+}
