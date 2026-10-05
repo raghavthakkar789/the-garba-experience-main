@@ -1733,3 +1733,44 @@ html.manual-scroll-owned [contenteditable="true"],
 html.manual-scroll-owned iframe {
   touch-action: auto;
 }
+
+
+/* Cross-device stability pass: preserve the approved visuals while reducing
+   Safari viewport/compositing fragility. */
+.cinematic .journey-stage{
+  height:100vh;
+  height:var(--app-height,100svh);
+}
+.cinematic .scene{
+  contain:layout paint style;
+}
+.cinematic .scene:not(.is-nearby){
+  content-visibility:hidden;
+}
+.cinematic .scene:not(.is-visible){
+  will-change:auto !important;
+}
+.cinematic .scene:not(.is-visible) .scene-art img,
+.cinematic .scene:not(.is-visible) .ambient-dust{
+  will-change:auto !important;
+}
+
+/* iOS/WebKit must keep native single-finger vertical scrolling. */
+html.ios-webkit.manual-scroll-owned main,
+html.ios-webkit main{
+  touch-action:auto !important;
+  -webkit-overflow-scrolling:touch;
+}
+html.ios-webkit .cinematic .journey-stage{
+  height:var(--app-height,100vh);
+}
+html.ios-webkit .cinematic .scene.is-visible .scene-art img{
+  will-change:auto;
+}
+html.ios-webkit .ambient-dust{
+  display:none !important;
+}
+html.ios-webkit .progress-line{
+  transform:scaleX(var(--progress,0));
+  will-change:auto;
+}
