@@ -1794,3 +1794,25 @@ html.android-web.manual-scroll-owned iframe{
   touch-action:auto !important;
   overscroll-behavior:auto;
 }
+
+
+/* Automatic performance fallback. Activated only after sustained jank.
+   Layout, copy, scene timing and navigation remain identical. */
+html.low-power-render .ambient-dust{
+  display:none !important;
+}
+html.low-power-render .scene-art img,
+html.low-power-render .story-person,
+html.low-power-render .together-art,
+html.low-power-render .journey-elephant .elephant-art,
+html.low-power-render .journey-elephant .elephant-riders{
+  filter:none !important;
+}
+html.low-power-render dialog::backdrop,
+html.low-power-render .artist-credit{
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+html.low-power-render .cinematic .scene:not(.is-visible){
+  content-visibility:hidden;
+}
