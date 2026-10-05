@@ -68,3 +68,16 @@ html:not(.cinematic) #arrival .together-art { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .elephant-body, .elephant-riders { transform: none; }
 }
+
+
+/* iOS uses the existing static elephant fallback; avoid extra filtered layers. */
+html.ios-webkit .journey-elephant,
+html.ios-webkit .elephant-body,
+html.ios-webkit .elephant-art,
+html.ios-webkit .elephant-riders{
+  will-change:auto !important;
+}
+html.ios-webkit .elephant-body::after{
+  filter:none;
+  opacity:.45;
+}
