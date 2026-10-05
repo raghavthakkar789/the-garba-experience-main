@@ -239,8 +239,8 @@
   let androidPointerId = null, androidPointerY = null, androidPointerX = null, androidPointerOwned = false;
   let readingZones = [], readingZonesDirty = true;
 
-  const manualMaxSpeed = () => clamp(innerHeight * .10, 55, 105);
-  const manualQueueBudget = () => Math.min(52, innerHeight * .065);
+  const manualMaxSpeed = () => clamp(innerHeight * 1.35, 700, 1400);
+  const manualQueueBudget = () => Math.min(620, innerHeight * .78);
   const slowdownRadius = () => clamp(innerHeight * .26, 160, 260);
 
   function stopManualMotion(sync = true) {
@@ -309,13 +309,13 @@
         const box = item.getBoundingClientRect();
         return viewportY >= box.top && viewportY <= box.bottom;
       });
-      return scene?.querySelector(".dialogue-beat") ? 1 : .85;
+      return scene?.querySelector(".dialogue-beat") ? 1 : .95;
     }
-    if (position < journeyTop || position >= journeyTop + travel) return .85;
+    if (position < journeyTop || position >= journeyTop + travel) return .95;
     const cursor = clamp((position - journeyTop) / travel) * storySpan;
     let index = scenes.length - 1;
     while (index > 0 && cursor < sceneStarts[index]) index--;
-    return scenes[index]?.querySelector(".dialogue-beat") ? 1 : .85;
+    return scenes[index]?.querySelector(".dialogue-beat") ? 1 : .95;
   }
 
   function readingSlowdown(position) {
@@ -331,7 +331,7 @@
     if (nearest >= radius) return 1;
     const t = clamp(nearest / radius);
     const smooth = t * t * (3 - 2 * t);
-    return .22 + .78 * smooth;
+    return .55 + .45 * smooth;
   }
 
   function advanceManualScroll(now) {
@@ -357,8 +357,8 @@
 
     // Remove the hard-scroll component completely: velocity approaches the
     // requested motion gradually instead of snapping to the speed ceiling.
-    const desiredVelocity = clamp(distance * 1.35, -maxSpeed, maxSpeed);
-    const response = 1 - Math.exp(-dt / .48);
+    const desiredVelocity = clamp(distance * 5.2, -maxSpeed, maxSpeed);
+    const response = 1 - Math.exp(-dt / .11);
     manualVelocity += (desiredVelocity - manualVelocity) * response;
 
     let step = manualVelocity * dt;
@@ -374,7 +374,7 @@
       manualFrame = requestAnimationFrame(advanceManualScroll);
   }
 
-  function manualScroll(delta, gain = .10) {
+  function manualScroll(delta, gain = 1.05) {
     if (!delta || (cinematic && !entryUnlocked)) return;
     if (autoScrolling) stopAutoScroll();
     if (entryFrame) cancelEntry();
@@ -383,7 +383,7 @@
     const slowdown = readingSlowdown(manualPosition);
     const sceneFactor = manualSceneFactor(manualPosition);
     const baseBudget = manualQueueBudget();
-    const localBudget = Math.max(22 * sceneFactor, baseBudget * slowdown * sceneFactor);
+    const localBudget = Math.max(180 * sceneFactor, baseBudget * slowdown * sceneFactor);
     const amount = delta * gain * slowdown * sceneFactor;
     const direction = Math.sign(amount);
 
@@ -400,7 +400,7 @@
 
     if (direction && Math.sign(manualTarget - manualPosition) !== direction) {
       manualTarget = manualPosition;
-      manualVelocity *= .08;
+      manualVelocity *= .18;
     }
 
     manualTarget = clamp(
@@ -440,8 +440,8 @@
 
     // Device-independent wheel/trackpad normalization. A very aggressive wheel
     // notch or trackpad fling can no longer flood the movement queue.
-    const normalized = clamp(raw, -18, 18);
-    manualScroll(normalized, .10);
+    const normalized = clamp(raw, -220, 220);
+    manualScroll(normalized, 1.05);
   }, { passive:false });
 
   addEventListener("touchstart", event => {
@@ -484,7 +484,7 @@
     // When vertical scrolling is app-owned, keep moving even if WebKit reports
     // a non-cancelable touchmove; only prevent native scrolling when allowed.
     if (event.cancelable) event.preventDefault();
-    manualScroll(dy, .07);
+    manualScroll(dy, .92);
   }, { passive:false });
 
   for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => {
@@ -529,7 +529,7 @@
       if (event.cancelable) event.preventDefault();
 
       // Same controlled Android touch gain as the existing manual-scroll model.
-      manualScroll(clamp(dy, -14, 14), .07);
+      manualScroll(clamp(dy, -90, 90), .92);
     }, { passive:false });
 
     const endAndroidPointer = event => {
@@ -547,9 +547,9 @@
     if (event.ctrlKey || event.metaKey || event.altKey || document.querySelector("dialog[open]")) return;
     if (localScrollableTarget(event.target)) return;
     if ([" ", "Enter"].includes(event.key) && event.target.closest?.("button,a,summary")) return;
-    const page = Math.min(52, innerHeight * .06);
+    const page = Math.min(560, innerHeight * .7);
     const delta = {
-      ArrowDown: 5, ArrowUp: -5,
+      ArrowDown: 46, ArrowUp: -46,
       PageDown: page, PageUp: -page,
       End: page, Home: -page,
       " ": event.shiftKey ? -page : page,
