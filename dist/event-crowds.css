@@ -214,3 +214,16 @@ html.low-power-render .stage-beam{
 html.low-power-render .stage-beam{
   mix-blend-mode:normal !important;
 }
+
+
+html.ios-webkit.ios-autoscroll-safe .event-crowd .guest-shift,
+html.ios-webkit.ios-autoscroll-safe .event-crowd .guest-body,
+html.ios-webkit.ios-autoscroll-safe .event-crowd .guest-sprite,
+html.ios-webkit.ios-autoscroll-safe .stage-beam{
+  animation:none !important;
+  filter:none !important;
+  will-change:auto !important;
+}
+html.ios-webkit.ios-autoscroll-safe .stage-beam{
+  mix-blend-mode:normal !important;
+}
