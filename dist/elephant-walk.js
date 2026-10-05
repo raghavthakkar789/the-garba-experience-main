@@ -18,7 +18,7 @@
   let gl, program, movesLocation, texture, ready = false;
   let frame = 0, last = 0, phase = 0, weight = 0, pageVisible = true;
   const permitted = () => ready && root.classList.contains('cinematic') && !ride.hidden &&
-    !document.hidden && pageVisible && !reduced.matches;
+    !document.hidden && pageVisible && !reduced.matches && !root.classList.contains('low-power-render');
   const smooth = (a,b,v) => { const t=Math.max(0,Math.min(1,(v-a)/(b-a))); return t*t*(3-2*t); };
   function stop() {
     if (frame) cancelAnimationFrame(frame);
