@@ -142,7 +142,7 @@
   const AUTO_ENTRY_ACCEL = 4.7 / AUTO_INTRO_SECONDS;
   let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0;
   let autoWasEntering = false;
-  let iosAutoTimeline = null, iosAutoStartedAt = 0;
+  let iosAutoTimeline = null, iosAutoStartedAt = 0, iosAutoLastWrite = 0;
   function updateAutoScrollButton() {
     autoScrollButton.setAttribute("aria-pressed", String(autoScrolling));
     autoScrollButton.setAttribute("aria-label", autoScrolling ? "Pause automatic scrolling" : "Start automatic scrolling");
@@ -156,6 +156,7 @@
     autoScrollFrame = 0;
     iosAutoTimeline = null;
     iosAutoStartedAt = 0;
+    iosAutoLastWrite = 0;
     if (wasRunning && entryFrame) cancelEntry();
     updateAutoScrollButton();
   }
@@ -263,19 +264,25 @@
           autoWasEntering = false;
           iosAutoTimeline = buildIosAutoTimeline(scrollY);
           iosAutoStartedAt = now;
+          iosAutoLastWrite = 0;
         }
 
         const elapsedSeconds = Math.max(0, now - iosAutoStartedAt) / 1000;
         autoScrollPosition = iosAutoPositionAt(elapsedSeconds);
-        jumpTo(autoScrollPosition);
 
-        // Self-correct from the clock every frame instead of trusting prior RAFs.
-        if (Math.abs(scrollY - autoScrollPosition) > 1)
-          scroller.scrollTop = autoScrollPosition;
+        // Safari safety: do not force a scroll write on every RAF. 30 Hz is
+        // visually smooth for this story while greatly reducing layout/paint
+        // pressure; sustained jank automatically falls back to ~20 Hz.
+        const writeInterval = (lowPowerRender || longFrameScore >= 4) ? 50 : 33;
+        if (!iosAutoLastWrite || now - iosAutoLastWrite >= writeInterval) {
+          iosAutoLastWrite = now;
+          if (Math.abs(scrollY - autoScrollPosition) > .75)
+            scroller.scrollTop = autoScrollPosition;
+        }
 
         const liveEnd = Math.max(0, root.scrollHeight - innerHeight);
         if (elapsedSeconds >= iosAutoTimeline.duration || scrollY >= liveEnd - 1) {
-          jumpTo(liveEnd);
+          scroller.scrollTop = liveEnd;
           stopAutoScroll();
           return;
         }
@@ -1024,7 +1031,7 @@
   document.querySelector("#celebration").addEventListener("garba-frame", (event) => {
     if (!cinematic) return;
     const now = performance.now();
-    if (iOSWebKit && now - lastGarbaDialogueLayout < 90) return;
+    if (iOSWebKit && now - lastGarbaDialogueLayout < (autoScrolling ? 180 : 90)) return;
     lastGarbaDialogueLayout = now;
     positionDialogue(event.currentTarget);
   });
@@ -1214,7 +1221,7 @@
         );
     });
     const layoutNow = performance.now();
-    const dialogueLayoutInterval = iOSWebKit ? 72 : 0;
+    const dialogueLayoutInterval = iOSWebKit ? (autoScrolling ? 180 : 72) : 0;
     if (!dialogueLayoutInterval || layoutNow - lastDialogueLayout >= dialogueLayoutInterval) {
       scenes.filter((scene) => scene.classList.contains("is-visible")).forEach(positionDialogue);
       lastDialogueLayout = layoutNow;
