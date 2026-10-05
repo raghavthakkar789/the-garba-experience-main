@@ -142,7 +142,7 @@
   const AUTO_ENTRY_ACCEL = 4.7 / AUTO_INTRO_SECONDS;
   let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0;
   let autoWasEntering = false;
-  let iosAutoTimeline = null, iosAutoStartedAt = 0, iosAutoLastWrite = 0;
+  let iosAutoTimeline = null, iosAutoStartedAt = 0, iosAutoLastWrite = 0, iosAutoLastRender = 0;
   function updateAutoScrollButton() {
     autoScrollButton.setAttribute("aria-pressed", String(autoScrolling));
     autoScrollButton.setAttribute("aria-label", autoScrolling ? "Pause automatic scrolling" : "Start automatic scrolling");
@@ -157,6 +157,8 @@
     iosAutoTimeline = null;
     iosAutoStartedAt = 0;
     iosAutoLastWrite = 0;
+    iosAutoLastRender = 0;
+    root.classList.remove("ios-autoscroll-safe");
     if (wasRunning && entryFrame) cancelEntry();
     updateAutoScrollButton();
   }
@@ -273,7 +275,7 @@
         // Safari safety: do not force a scroll write on every RAF. 30 Hz is
         // visually smooth for this story while greatly reducing layout/paint
         // pressure; sustained jank automatically falls back to ~20 Hz.
-        const writeInterval = (lowPowerRender || longFrameScore >= 4) ? 50 : 33;
+        const writeInterval = (lowPowerRender || longFrameScore >= 4) ? 80 : 50;
         if (!iosAutoLastWrite || now - iosAutoLastWrite >= writeInterval) {
           iosAutoLastWrite = now;
           if (Math.abs(scrollY - autoScrollPosition) > .75)
@@ -344,6 +346,9 @@
     autoScrollLast = performance.now();
     iosAutoTimeline = null;
     iosAutoStartedAt = 0;
+    iosAutoLastWrite = 0;
+    iosAutoLastRender = 0;
+    root.classList.toggle("ios-autoscroll-safe", iOSWebKit);
     updateAutoScrollButton();
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   });
@@ -1031,7 +1036,7 @@
   document.querySelector("#celebration").addEventListener("garba-frame", (event) => {
     if (!cinematic) return;
     const now = performance.now();
-    if (iOSWebKit && now - lastGarbaDialogueLayout < (autoScrolling ? 180 : 90)) return;
+    if (iOSWebKit && now - lastGarbaDialogueLayout < (autoScrolling ? 360 : 90)) return;
     lastGarbaDialogueLayout = now;
     positionDialogue(event.currentTarget);
   });
@@ -1138,6 +1143,11 @@
   let lastRenderSample = 0;
   function renderScroll(now = performance.now()) {
     frame = 0;
+    if (iOSWebKit && autoScrolling) {
+      const renderInterval = (lowPowerRender || longFrameScore >= 4) ? 80 : 50;
+      if (iosAutoLastRender && now - iosAutoLastRender < renderInterval) return;
+      iosAutoLastRender = now;
+    }
     if (lastRenderSample) noteFrameCost(now - lastRenderSample);
     lastRenderSample = now;
     // Wheel, touch, keyboard and restored scroll positions cannot open a sealed box.
@@ -1192,7 +1202,7 @@
       scene.classList.toggle("is-nearby", Math.abs(i - selected) <= 1);
       scene.inert = !active;
       scene.setAttribute("aria-hidden", String(!active));
-      if (i <= selected + 1)
+      if (!(iOSWebKit && autoScrolling) && i <= selected + 1)
         scene.querySelectorAll("img[loading=lazy]").forEach((img) => {
           img.loading = "eager";
         });
@@ -1221,7 +1231,7 @@
         );
     });
     const layoutNow = performance.now();
-    const dialogueLayoutInterval = iOSWebKit ? (autoScrolling ? 180 : 72) : 0;
+    const dialogueLayoutInterval = iOSWebKit ? (autoScrolling ? 360 : 72) : 0;
     if (!dialogueLayoutInterval || layoutNow - lastDialogueLayout >= dialogueLayoutInterval) {
       scenes.filter((scene) => scene.classList.contains("is-visible")).forEach(positionDialogue);
       lastDialogueLayout = layoutNow;
