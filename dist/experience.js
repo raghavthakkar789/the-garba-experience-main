@@ -239,8 +239,8 @@
   let androidPointerId = null, androidPointerY = null, androidPointerX = null, androidPointerOwned = false;
   let readingZones = [], readingZonesDirty = true;
 
-  const manualMaxSpeed = () => clamp(innerHeight * .3, 150, 300);
-  const manualQueueBudget = () => Math.min(131.25, innerHeight * .159375);
+  const manualMaxSpeed = () => clamp(innerHeight * .18, 90, 180);
+  const manualQueueBudget = () => Math.min(90, innerHeight * .11);
   const slowdownRadius = () => clamp(innerHeight * .26, 160, 260);
 
   function stopManualMotion(sync = true) {
@@ -357,8 +357,8 @@
 
     // Remove the hard-scroll component completely: velocity approaches the
     // requested motion gradually instead of snapping to the speed ceiling.
-    const desiredVelocity = clamp(distance * 3.2, -maxSpeed, maxSpeed);
-    const response = 1 - Math.exp(-dt / .22);
+    const desiredVelocity = clamp(distance * 2.1, -maxSpeed, maxSpeed);
+    const response = 1 - Math.exp(-dt / .32);
     manualVelocity += (desiredVelocity - manualVelocity) * response;
 
     let step = manualVelocity * dt;
@@ -374,7 +374,7 @@
       manualFrame = requestAnimationFrame(advanceManualScroll);
   }
 
-  function manualScroll(delta, gain = .28125) {
+  function manualScroll(delta, gain = .18) {
     if (!delta || (cinematic && !entryUnlocked)) return;
     if (autoScrolling) stopAutoScroll();
     if (entryFrame) cancelEntry();
@@ -383,7 +383,7 @@
     const slowdown = readingSlowdown(manualPosition);
     const sceneFactor = manualSceneFactor(manualPosition);
     const baseBudget = manualQueueBudget();
-    const localBudget = Math.max(64 * sceneFactor, baseBudget * slowdown * sceneFactor);
+    const localBudget = Math.max(36 * sceneFactor, baseBudget * slowdown * sceneFactor);
     const amount = delta * gain * slowdown * sceneFactor;
     const direction = Math.sign(amount);
 
@@ -433,11 +433,15 @@
   addEventListener("wheel", event => {
     if (event.ctrlKey || event.metaKey || document.querySelector("dialog[open]")) return;
     if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
-    const normalized = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1);
-    if (localScrollableTarget(event.target, normalized)) return;
+    const raw = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? innerHeight : 1);
+    if (localScrollableTarget(event.target, raw)) return;
     if (!entryUnlocked && cinematic) return;
     if (event.cancelable) event.preventDefault();
-    manualScroll(normalized, .28125);
+
+    // Device-independent wheel/trackpad normalization. A very aggressive wheel
+    // notch or trackpad fling can no longer flood the movement queue.
+    const normalized = clamp(raw, -40, 40);
+    manualScroll(normalized, .18);
   }, { passive:false });
 
   addEventListener("touchstart", event => {
@@ -480,7 +484,7 @@
     // When vertical scrolling is app-owned, keep moving even if WebKit reports
     // a non-cancelable touchmove; only prevent native scrolling when allowed.
     if (event.cancelable) event.preventDefault();
-    manualScroll(dy, .1875);
+    manualScroll(dy, .12);
   }, { passive:false });
 
   for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => {
@@ -525,7 +529,7 @@
       if (event.cancelable) event.preventDefault();
 
       // Same controlled Android touch gain as the existing manual-scroll model.
-      manualScroll(dy, .1875);
+      manualScroll(clamp(dy, -28, 28), .12);
     }, { passive:false });
 
     const endAndroidPointer = event => {
@@ -543,9 +547,9 @@
     if (event.ctrlKey || event.metaKey || event.altKey || document.querySelector("dialog[open]")) return;
     if (localScrollableTarget(event.target)) return;
     if ([" ", "Enter"].includes(event.key) && event.target.closest?.("button,a,summary")) return;
-    const page = Math.min(131.25, innerHeight * .140625);
+    const page = Math.min(90, innerHeight * .10);
     const delta = {
-      ArrowDown: 13.5, ArrowUp: -13.5,
+      ArrowDown: 9, ArrowUp: -9,
       PageDown: page, PageUp: -page,
       End: page, Home: -page,
       " ": event.shiftKey ? -page : page,
