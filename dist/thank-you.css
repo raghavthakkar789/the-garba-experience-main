@@ -589,3 +589,97 @@
     width:103.5px !important;
   }
 }
+
+
+/* Mobile finale repair: allow the closing card, decorative artwork and footer
+   to flow naturally instead of competing for a fixed viewport height. */
+@media (max-width:650px){
+  .finale.thank-you{
+    height:auto !important;
+    min-height:100svh !important;
+    max-height:none !important;
+    overflow:visible !important;
+    contain:layout paint !important;
+  }
+
+  .thank-you-scene{
+    height:auto !important;
+    min-height:100svh;
+    padding:8px 8px 0;
+  }
+
+  .thank-you-frame{
+    height:auto !important;
+    min-height:100svh;
+    align-content:start;
+    padding:
+      clamp(42px,6svh,54px)
+      14px
+      clamp(126px,18svh,164px) !important;
+    gap:6px;
+  }
+
+  .thank-you-details{
+    width:100%;
+    margin:2px 0 0 !important;
+    padding:8px 9px 10px;
+    gap:5px;
+    overflow:hidden;
+  }
+
+  /* Footer already contains the same replay action on mobile. */
+  .thank-you-details .thank-you-replay{
+    display:none !important;
+  }
+
+  .thank-you-art{
+    position:absolute;
+    left:50%;
+    bottom:0;
+    width:100%;
+    height:clamp(118px,17svh,158px);
+    transform:translateX(-50%);
+    overflow:hidden;
+  }
+
+  .thank-you-elephant{
+    width:44%;
+    height:90%;
+  }
+
+  .thank-you-leaf{
+    width:38%;
+    height:100%;
+  }
+
+  .thank-you-lotus{
+    width:27%;
+    height:64%;
+  }
+}
+
+@media (max-width:380px){
+  .thank-you-frame{
+    padding-inline:10px;
+    padding-bottom:132px !important;
+  }
+
+  .thank-you-details{
+    padding-inline:7px;
+  }
+
+  .thank-you-art{
+    height:124px;
+  }
+}
+
+@media (max-width:650px) and (max-height:700px){
+  .thank-you-frame{
+    min-height:auto;
+    padding-bottom:112px !important;
+  }
+
+  .thank-you-art{
+    height:106px;
+  }
+}
