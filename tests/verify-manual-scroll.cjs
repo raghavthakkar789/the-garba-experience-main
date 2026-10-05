@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('n
 const {chromium}=require('playwright');
 const source=fs.readFileSync(path.resolve(__dirname,'../dist/experience.js'),'utf8');
 assert(source.includes('manualVelocity'),'manual scrolling uses a velocity-based soft controller');
-assert(source.includes('Math.exp(-dt / .32)'),'manual scrolling ramps acceleration/deceleration smoothly');
+assert(source.includes('Math.exp(-dt / .48)'),'manual scrolling ramps acceleration/deceleration smoothly');
 let browser,server;
 (async()=>{
  const root=path.resolve(__dirname,'../dist');
@@ -33,9 +33,9 @@ let browser,server;
 
  // Aggressive input is bounded: no single gesture can sweep the whole story.
  await place(zone-700);const hardStart=await page.evaluate(()=>scrollY);await wheel(20000);await page.waitForTimeout(250);const early=await page.evaluate(y=>scrollY-y,hardStart);
- assert(early<95,'aggressive wheel velocity stays bounded');
+ assert(early<55,'aggressive wheel velocity stays bounded');
  await page.waitForTimeout(1400);const hardTotal=await page.evaluate(y=>scrollY-y,hardStart);
- assert(hardTotal<=92,'queued movement stays within the 700px budget');
+ assert(hardTotal<=54,'queued movement stays within the 700px budget');
 
  // Same gesture crosses the reading area continuously: it slows, but never locks/snaps.
  await place(zone-220);const throughStart=await page.evaluate(()=>scrollY);await wheel(700);await page.waitForTimeout(1800);const throughEnd=await page.evaluate(()=>scrollY);
@@ -55,7 +55,7 @@ let browser,server;
  await place(zone-300);const keyStart=await page.evaluate(()=>scrollY);for(let i=0;i<8;i++)await page.keyboard.press('ArrowDown');await page.waitForTimeout(900);
  const keyEnd=await page.evaluate(()=>scrollY);
  assert(keyEnd>keyStart,'keyboard navigation advances');
- assert(keyEnd-keyStart<=92,'keyboard queue remains bounded');
+ assert(keyEnd-keyStart<=54,'keyboard queue remains bounded');
 
  // Trackpad-like continuous wheel stream does not require input restart at the reading area.
  await place(zone-260);for(let i=0;i<16;i++){await wheel(55);await page.waitForTimeout(35);}await page.waitForTimeout(1000);
@@ -86,7 +86,7 @@ let browser,server;
  // Reduced motion uses bounded immediate movement, still without locks.
  await page.emulateMedia({reducedMotion:'reduce'});await page.waitForTimeout(160);const reducedStart=await page.evaluate(()=>scrollY);await wheel(500);await page.waitForTimeout(80);
  const reducedEnd=await page.evaluate(()=>scrollY);assert(reducedEnd!==reducedStart,'reduced motion manual input moves immediately');
- assert(Math.abs(reducedEnd-reducedStart)<=92,'reduced motion movement remains bounded');
+ assert(Math.abs(reducedEnd-reducedStart)<=54,'reduced motion movement remains bounded');
 
  assert.deepEqual(errors,[]);
  console.log('PASS: bounded wheel/trackpad/touch/keyboard scrolling, continuous bidirectional reading slowdowns, no mandatory stops, native dialogs/horizontal/zoom, reduced motion, and Autoscroll takeover.');
