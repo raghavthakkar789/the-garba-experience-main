@@ -1849,3 +1849,25 @@ html.low-power-render .cinematic .scene:not(.is-visible){
     line-height:1.35;
   }
 }
+
+
+/* iOS Autoscroll safety mode: active only while automatic scrolling runs.
+   Preserve layout and scene content while reducing Safari compositing pressure. */
+html.ios-webkit.ios-autoscroll-safe .ambient-dust{
+  display:none !important;
+}
+html.ios-webkit.ios-autoscroll-safe .scene-art img,
+html.ios-webkit.ios-autoscroll-safe .story-person,
+html.ios-webkit.ios-autoscroll-safe .together-art,
+html.ios-webkit.ios-autoscroll-safe .journey-elephant .elephant-art,
+html.ios-webkit.ios-autoscroll-safe .journey-elephant .elephant-riders{
+  filter:none !important;
+  will-change:auto !important;
+}
+html.ios-webkit.ios-autoscroll-safe .cinematic .scene:not(.is-visible){
+  content-visibility:hidden !important;
+  contain:strict !important;
+}
+html.ios-webkit.ios-autoscroll-safe .progress-line{
+  will-change:auto !important;
+}
