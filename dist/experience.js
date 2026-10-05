@@ -212,8 +212,8 @@
   let touchY = null, touchX = null, touchOwned = false;
   let readingZones = [], readingZonesDirty = true;
 
-  const manualMaxSpeed = () => clamp(innerHeight * .6, 300, 600);
-  const manualQueueBudget = () => Math.min(262.5, innerHeight * .31875);
+  const manualMaxSpeed = () => clamp(innerHeight * .3, 150, 300);
+  const manualQueueBudget = () => Math.min(131.25, innerHeight * .159375);
   const slowdownRadius = () => clamp(innerHeight * .26, 160, 260);
 
   function stopManualMotion(sync = true) {
@@ -330,7 +330,7 @@
       manualFrame = requestAnimationFrame(advanceManualScroll);
   }
 
-  function manualScroll(delta, gain = .5625) {
+  function manualScroll(delta, gain = .28125) {
     if (!delta || (cinematic && !entryUnlocked)) return;
     if (autoScrolling) stopAutoScroll();
     if (entryFrame) cancelEntry();
@@ -391,7 +391,7 @@
     if (localScrollableTarget(event.target, normalized)) return;
     if (!entryUnlocked && cinematic) return;
     if (event.cancelable) event.preventDefault();
-    manualScroll(normalized, .5625);
+    manualScroll(normalized, .28125);
   }, { passive:false });
 
   addEventListener("touchstart", event => {
@@ -434,7 +434,7 @@
     // When vertical scrolling is app-owned, keep moving even if WebKit reports
     // a non-cancelable touchmove; only prevent native scrolling when allowed.
     if (event.cancelable) event.preventDefault();
-    manualScroll(dy, .375);
+    manualScroll(dy, .1875);
   }, { passive:false });
 
   for (const name of ["touchend", "touchcancel"]) addEventListener(name, () => {
@@ -447,9 +447,9 @@
     if (event.ctrlKey || event.metaKey || event.altKey || document.querySelector("dialog[open]")) return;
     if (localScrollableTarget(event.target)) return;
     if ([" ", "Enter"].includes(event.key) && event.target.closest?.("button,a,summary")) return;
-    const page = Math.min(262.5, innerHeight * .28125);
+    const page = Math.min(131.25, innerHeight * .140625);
     const delta = {
-      ArrowDown: 27, ArrowUp: -27,
+      ArrowDown: 13.5, ArrowUp: -13.5,
       PageDown: page, PageUp: -page,
       End: page, Home: -page,
       " ": event.shiftKey ? -page : page,
