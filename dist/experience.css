@@ -1816,3 +1816,36 @@ html.low-power-render .artist-credit{
 html.low-power-render .cinematic .scene:not(.is-visible){
   content-visibility:hidden;
 }
+
+
+/* Mobile closing footer follows the finale in normal flow. */
+@media (max-width:650px){
+  :root{
+    --closing-footer-h:0px;
+  }
+
+  footer{
+    height:auto !important;
+    min-height:0 !important;
+    padding:16px 14px 18px !important;
+    grid-template-columns:1fr 1fr !important;
+    grid-template-rows:auto auto !important;
+    gap:10px 14px !important;
+    align-items:center;
+  }
+
+  footer > :first-child{
+    grid-column:1 / -1;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-size:clamp(18px,5vw,24px) !important;
+  }
+
+  footer > p{
+    font-size:clamp(10px,2.7vw,12px);
+    line-height:1.35;
+  }
+}
