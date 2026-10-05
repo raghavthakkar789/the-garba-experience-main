@@ -40,7 +40,9 @@
   }, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const iOSWebKit = (/iP(?:hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) && /WebKit/.test(navigator.userAgent);
+  const androidWeb = /Android/i.test(navigator.userAgent) && !iOSWebKit;
   root.classList.toggle("ios-webkit", iOSWebKit);
+  root.classList.toggle("android-web", androidWeb);
   const hydrateInvitation = () => hydrateScene(2);
   if (iOSWebKit) {
     if ("requestIdleCallback" in window) requestIdleCallback(hydrateInvitation, { timeout: 900 });
@@ -210,6 +212,7 @@
   // No snapping, forced pauses or checkpoint locks.
   let manualFrame = 0, manualTarget = 0, manualPosition = 0, manualLast = 0;
   let touchY = null, touchX = null, touchOwned = false;
+  let androidPointerId = null, androidPointerY = null, androidPointerX = null, androidPointerOwned = false;
   let readingZones = [], readingZonesDirty = true;
 
   const manualMaxSpeed = () => clamp(innerHeight * .3, 150, 300);
@@ -395,7 +398,7 @@
   }, { passive:false });
 
   addEventListener("touchstart", event => {
-    if (iOSWebKit) {
+    if (iOSWebKit || androidWeb) {
       if (!scrollControl(event.target) && autoScrolling) stopAutoScroll();
       stopManualMotion();
       return;
@@ -414,7 +417,7 @@
   }, { passive:true });
 
   addEventListener("touchmove", event => {
-    if (iOSWebKit) return;
+    if (iOSWebKit || androidWeb) return;
     if (touchY === null || touchX === null || event.touches?.length !== 1 ||
         document.querySelector("dialog[open]")) return;
     const touch = event.touches[0];
@@ -441,6 +444,56 @@
     touchY = touchX = null;
     touchOwned = false;
   }, { passive:true });
+
+  if (androidWeb && "PointerEvent" in window) {
+    addEventListener("pointerdown", event => {
+      if (event.pointerType !== "touch" || event.isPrimary === false ||
+          !event.target.closest?.("main") || localScrollableTarget(event.target) ||
+          scrollControl(event.target) || document.querySelector("dialog[open]")) return;
+      if (autoScrolling) stopAutoScroll();
+      stopManualMotion();
+      androidPointerId = event.pointerId;
+      androidPointerY = event.clientY;
+      androidPointerX = event.clientX;
+      androidPointerOwned = false;
+      try { event.target.setPointerCapture?.(event.pointerId); } catch {}
+    }, { passive:true });
+
+    addEventListener("pointermove", event => {
+      if (event.pointerType !== "touch" || event.pointerId !== androidPointerId ||
+          androidPointerY === null || androidPointerX === null ||
+          document.querySelector("dialog[open]")) return;
+
+      const dy = androidPointerY - event.clientY;
+      const dx = androidPointerX - event.clientX;
+
+      if (!androidPointerOwned) {
+        if (Math.abs(dx) > Math.abs(dy) * 1.05) {
+          androidPointerY = event.clientY;
+          androidPointerX = event.clientX;
+          return;
+        }
+        if (Math.abs(dy) < 2) return;
+        androidPointerOwned = true;
+      }
+
+      androidPointerY = event.clientY;
+      androidPointerX = event.clientX;
+      if (event.cancelable) event.preventDefault();
+
+      // Same controlled Android touch gain as the existing manual-scroll model.
+      manualScroll(dy, .1875);
+    }, { passive:false });
+
+    const endAndroidPointer = event => {
+      if (event.pointerId !== androidPointerId) return;
+      androidPointerId = null;
+      androidPointerY = androidPointerX = null;
+      androidPointerOwned = false;
+    };
+    addEventListener("pointerup", endAndroidPointer, { passive:true });
+    addEventListener("pointercancel", endAndroidPointer, { passive:true });
+  }
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") { cancelManualScroll(); return; }
