@@ -13,6 +13,10 @@ assert(source.includes('? 80 : 50'),'iOS autoscroll uses 20Hz writes and 12.5Hz 
 assert(source.includes('ios-autoscroll-safe'),'iOS autoscroll enables a temporary compositing safety mode');
 assert(source.includes('startIosGsapAuto'),'iOS Autoscroll has a GSAP ScrollTo path');
 assert(source.includes('iOSWebKit && iosGsapAvailable()'),'GSAP Autoscroll is isolated to iOS');
+assert(source.includes('autoScrollButton.hidden = iOSWebKit'),'Autoscroll button is hidden only on iOS');
+assert(source.includes('autoScrollButton.disabled = iOSWebKit'),'Autoscroll control is disabled only on iOS');
+assert(source.includes('Autoscroll unavailable on iOS'),'iOS Autoscroll has an accessibility label');
+assert(source.includes('if (iOSWebKit) return;'),'iOS click path cannot start Autoscroll');
 assert(source.includes('autoKill:false'),'GSAP ScrollTo is configured not to self-cancel');
 assert(source.includes('Fallback only if GSAP/ScrollToPlugin failed to load'),'custom iOS engine remains a fallback');
 assert(source.includes('if (iOSWebKit)'),'iOS has a dedicated autoscroll path');
