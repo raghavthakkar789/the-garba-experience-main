@@ -182,3 +182,19 @@ html.ios-webkit .guest-shift::after,
 html.ios-webkit .stage-beam {
   filter: none !important;
 }
+
+
+/* Extra WebKit paint containment: retain guests, remove expensive blend/blur work. */
+html.ios-webkit .event-crowd{
+  contain:paint;
+}
+html.ios-webkit .stage-lights{
+  opacity:.72;
+}
+html.ios-webkit .stage-beam{
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
+html.ios-webkit .guest-shift::after{
+  display:none;
+}
