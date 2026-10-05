@@ -29,8 +29,8 @@
     if (index < 0 || index >= scenes.length) return;
     hydrateNode(scenes[index]);
   };
-  // Opening + first conversation + invitation are needed immediately.
-  [0,1,2].forEach(hydrateScene);
+  // Opening + first conversation are needed immediately.
+  [0,1].forEach(hydrateScene);
   // The final walking chapter needs time for every shop, within the same film.
   const sceneSpans = scenes.map((scene) => Number(scene.dataset.scrollSpan) || 1);
   const sceneStarts = [];
@@ -41,6 +41,11 @@
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const iOSWebKit = (/iP(?:hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) && /WebKit/.test(navigator.userAgent);
   root.classList.toggle("ios-webkit", iOSWebKit);
+  const hydrateInvitation = () => hydrateScene(2);
+  if (iOSWebKit) {
+    if ("requestIdleCallback" in window) requestIdleCallback(hydrateInvitation, { timeout: 900 });
+    else setTimeout(hydrateInvitation, 120);
+  } else hydrateInvitation();
   const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
   const scroller = document.scrollingElement || root;
   const jumpTo = (top, left = 0) => {
@@ -831,7 +836,7 @@
     const wasCinematic = cinematic;
     const wasWithin = scrollY < journeyTop + journey.offsetHeight;
     const finaleOffset = scrollY - (journeyTop + journey.offsetHeight);
-    cinematic = !reduced.matches && innerHeight >= 640;
+    cinematic = !reduced.matches && stableViewportHeight >= 640;
     root.classList.toggle("cinematic", cinematic);
     root.classList.toggle("read-mode", !cinematic);
     // Use a stable viewport height; mobile address-bar changes do not reshape the story.
@@ -867,6 +872,7 @@
       measure();
     }
     root.classList.toggle("invitation-locked", cinematic && !entryUnlocked);
+    if (!cinematic || iOSWebKit) root.classList.remove("manual-scroll-owned");
     openingSoundButton.hidden = !cinematic;
     if (preservePlace && wasCinematic !== cinematic) {
       const top = !wasWithin
@@ -1031,7 +1037,7 @@
     "resize",
     () => {
       const widthChanged = innerWidth !== lastWidth;
-      const modeChanged = (innerHeight >= 640) !== (lastHeight >= 640);
+      const modeChanged = !iOSWebKit && (innerHeight >= 640) !== (lastHeight >= 640);
       lastWidth = innerWidth;
       lastHeight = innerHeight;
       if (widthChanged || modeChanged) {
