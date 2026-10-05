@@ -198,3 +198,19 @@ html.ios-webkit .stage-beam{
 html.ios-webkit .guest-shift::after{
   display:none;
 }
+
+
+/* Runtime fallback for devices that show sustained frame drops. */
+html.low-power-render.cinematic .event-crowd .guest-shift,
+html.low-power-render.cinematic .event-crowd .guest-body,
+html.low-power-render.cinematic .event-crowd .guest-sprite,
+html.low-power-render.cinematic .stage-beam{
+  animation:none !important;
+}
+html.low-power-render .guest-sprite,
+html.low-power-render .stage-beam{
+  filter:none !important;
+}
+html.low-power-render .stage-beam{
+  mix-blend-mode:normal !important;
+}
