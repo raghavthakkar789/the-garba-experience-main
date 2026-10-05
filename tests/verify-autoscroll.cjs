@@ -1,6 +1,10 @@
 /* Real-browser checks for explicit opt-in autoscroll and manual takeover. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path');
 const {chromium}=require('playwright');
+const source=fs.readFileSync(path.resolve(__dirname,'../dist/experience.js'),'utf8');
+assert(source.includes('buildIosAutoTimeline'),'iOS autoscroll has a deterministic timeline');
+assert(source.includes('iosAutoPositionAt'),'iOS autoscroll derives position from elapsed time');
+assert(source.includes('if (iOSWebKit)'),'iOS has a dedicated autoscroll path');
 let browser,server;
 (async()=>{
  const root=path.resolve(__dirname,'../dist'),types={'.html':'text/html','.css':'text/css','.js':'text/javascript','.svg':'image/svg+xml','.webp':'image/webp','.woff':'font/woff','.woff2':'font/woff2','.mp3':'audio/mpeg','.m4a':'audio/mp4'};
