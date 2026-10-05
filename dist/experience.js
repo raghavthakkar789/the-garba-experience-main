@@ -84,6 +84,30 @@
     root.style.setProperty("--app-height", stableViewportHeight + "px");
   }
   updateStableViewport(true);
+
+  // Invisible reliability fallback: only reduce expensive rendering after sustained
+  // long frames. This does not alter scene order, timing, dialogue or layout.
+  let lowPowerRender = false;
+  let longFrameScore = 0;
+  function enableLowPowerRender() {
+    if (lowPowerRender) return;
+    lowPowerRender = true;
+    root.classList.add("low-power-render");
+  }
+  function noteFrameCost(duration) {
+    if (!Number.isFinite(duration)) return;
+    if (duration >= 50) longFrameScore += duration >= 100 ? 2 : 1;
+    else longFrameScore = Math.max(0, longFrameScore - .35);
+    if (longFrameScore >= 8) enableLowPowerRender();
+  }
+  if ("PerformanceObserver" in window) {
+    try {
+      const observer = new PerformanceObserver(list => {
+        list.getEntries().forEach(entry => noteFrameCost(entry.duration));
+      });
+      observer.observe({ type:"longtask", buffered:true });
+    } catch {}
+  }
   const opening = document.querySelector(".opening-scene");
   const openingButtons = [
     ...document.querySelectorAll("[data-open-invitation]"),
@@ -515,7 +539,12 @@
   document.addEventListener("pointerdown", event => {
     if (event.pointerType === "mouse" && !scrollControl(event.target)) stopManualMotion();
   }, { passive:true });
-  document.addEventListener("visibilitychange", () => { if (document.hidden) cancelManualScroll(); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cancelManualScroll();
+      lastRenderSample = 0;
+    }
+  });
   addEventListener("pagehide", cancelManualScroll);
   function cancelEntry() {
     if (entryFrame) cancelAnimationFrame(entryFrame);
@@ -945,8 +974,11 @@
         autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
     }
   }
-  function renderScroll() {
+  let lastRenderSample = 0;
+  function renderScroll(now = performance.now()) {
     frame = 0;
+    if (lastRenderSample) noteFrameCost(now - lastRenderSample);
+    lastRenderSample = now;
     // Wheel, touch, keyboard and restored scroll positions cannot open a sealed box.
     if (cinematic) {
       // Once the invitation has opened, keep the journey unlocked until an explicit
