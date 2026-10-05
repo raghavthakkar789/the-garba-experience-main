@@ -338,6 +338,10 @@
   }
 
     function advanceAutoScroll(now) {
+    if (iOSWebKit) {
+      if (autoScrolling) stopAutoScroll();
+      return;
+    }
     if (!autoScrolling) return;
     if (document.hidden || document.querySelector("dialog[open]")) { stopAutoScroll(); return; }
 
@@ -436,8 +440,15 @@
     }
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   }
-  autoScrollButton.hidden = false;
+  // iOS/iPadOS: manual scrolling is reliable, so hide and hard-disable
+  // Autoscroll only on WebKit iOS devices. Desktop and Android are unchanged.
+  autoScrollButton.hidden = iOSWebKit;
+  autoScrollButton.disabled = iOSWebKit;
+  if (iOSWebKit)
+    autoScrollButton.setAttribute("aria-label", "Autoscroll unavailable on iOS");
+
   autoScrollButton.addEventListener("click", () => {
+    if (iOSWebKit) return;
     cancelManualScroll();
     if (autoScrolling) { stopAutoScroll(); return; }
     if (document.querySelector("dialog[open]")) return;
