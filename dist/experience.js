@@ -142,6 +142,7 @@
   const AUTO_ENTRY_ACCEL = 4.7 / AUTO_INTRO_SECONDS;
   let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0;
   let autoWasEntering = false;
+  let iosAutoTimeline = null, iosAutoStartedAt = 0;
   function updateAutoScrollButton() {
     autoScrollButton.setAttribute("aria-pressed", String(autoScrolling));
     autoScrollButton.setAttribute("aria-label", autoScrolling ? "Pause automatic scrolling" : "Start automatic scrolling");
@@ -153,12 +154,105 @@
     autoScrolling = false;
     cancelAnimationFrame(autoScrollFrame);
     autoScrollFrame = 0;
+    iosAutoTimeline = null;
+    iosAutoStartedAt = 0;
     if (wasRunning && entryFrame) cancelEntry();
     updateAutoScrollButton();
+  }
+
+  function buildIosAutoTimeline(startY) {
+    const end = Math.max(0, root.scrollHeight - innerHeight);
+    const segments = [];
+    let y = clamp(startY, 0, end);
+
+    if (cinematic && y < journeyTop + travel) {
+      const storyEnd = journeyTop + travel;
+      for (let i = 0; i < scenes.length && y < storyEnd; i++) {
+        const sceneStart = journeyTop + sceneStarts[i] / storySpan * travel;
+        const sceneEnd = journeyTop + (sceneStarts[i] + sceneSpans[i]) / storySpan * travel;
+        if (sceneEnd <= y) continue;
+        const from = Math.max(y, sceneStart);
+        const to = Math.min(sceneEnd, storyEnd);
+        if (to <= from) continue;
+        const fullDistance = Math.max(1, sceneEnd - sceneStart);
+        const fullDuration = AUTO_SCENE_SECONDS[scenes[i].id] || 3;
+        const duration = fullDuration * ((to - from) / fullDistance);
+        segments.push({ from, to, duration });
+        y = to;
+      }
+    }
+
+    if (y < end) {
+      const finaleStart = journeyTop + travel;
+      const fullFinaleDistance = Math.max(1, end - finaleStart);
+      const from = Math.max(y, Math.min(end, finaleStart));
+      if (from > y) {
+        // Any gap before the finale inherits the same conservative pace.
+        const gapDistance = from - y;
+        segments.push({ from:y, to:from, duration:Math.max(.05, AUTO_FINALE_SECONDS * gapDistance / fullFinaleDistance) });
+        y = from;
+      }
+      if (y < end) {
+        const duration = AUTO_FINALE_SECONDS * ((end - y) / fullFinaleDistance);
+        segments.push({ from:y, to:end, duration:Math.max(.05, duration) });
+      }
+    }
+
+    let elapsed = 0;
+    for (const segment of segments) {
+      segment.start = elapsed;
+      elapsed += segment.duration;
+      segment.end = elapsed;
+    }
+    return { segments, duration:elapsed, end };
+  }
+
+  function iosAutoPositionAt(elapsedSeconds) {
+    const timeline = iosAutoTimeline;
+    if (!timeline?.segments?.length) return timeline?.end ?? scrollY;
+    if (elapsedSeconds >= timeline.duration) return timeline.end;
+    const segment = timeline.segments.find(item => elapsedSeconds <= item.end) || timeline.segments[timeline.segments.length - 1];
+    const local = clamp((elapsedSeconds - segment.start) / Math.max(.001, segment.duration));
+    return segment.from + (segment.to - segment.from) * local;
   }
   function advanceAutoScroll(now) {
     if (!autoScrolling) return;
     if (document.hidden || document.querySelector("dialog[open]")) { stopAutoScroll(); return; }
+
+    // iOS uses a deterministic elapsed-time timeline. Dropped frames no longer
+    // accumulate scroll error; each paint recomputes the exact expected position.
+    if (iOSWebKit) {
+      if (entryFrame) {
+        autoScrollPosition = scrollY;
+        autoWasEntering = true;
+        iosAutoTimeline = null;
+        iosAutoStartedAt = 0;
+      } else {
+        if (autoWasEntering || !iosAutoTimeline) {
+          autoScrollPosition = scrollY;
+          autoWasEntering = false;
+          iosAutoTimeline = buildIosAutoTimeline(scrollY);
+          iosAutoStartedAt = now;
+        }
+
+        const elapsedSeconds = Math.max(0, now - iosAutoStartedAt) / 1000;
+        autoScrollPosition = iosAutoPositionAt(elapsedSeconds);
+        jumpTo(autoScrollPosition);
+
+        // Self-correct from the clock every frame instead of trusting prior RAFs.
+        if (Math.abs(scrollY - autoScrollPosition) > 1)
+          scroller.scrollTop = autoScrollPosition;
+
+        if (elapsedSeconds >= iosAutoTimeline.duration || scrollY >= iosAutoTimeline.end - 1) {
+          jumpTo(iosAutoTimeline.end);
+          stopAutoScroll();
+          return;
+        }
+      }
+      autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
+      return;
+    }
+
     const seconds = Math.min(Math.max(0, now - autoScrollLast), 120) / 1000;
     autoScrollLast = now;
     // The door/descent sequence retains sole control until landing.
@@ -210,6 +304,8 @@
     autoWasEntering = Boolean(entryFrame);
     autoScrollPosition = scrollY;
     autoScrollLast = performance.now();
+    iosAutoTimeline = null;
+    iosAutoStartedAt = 0;
     updateAutoScrollButton();
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   });
@@ -230,6 +326,10 @@
     if (!autoScrolling || autoScrollFrame || document.hidden) return;
     autoScrollPosition = scrollY;
     autoScrollLast = performance.now();
+    if (iOSWebKit) {
+      iosAutoTimeline = buildIosAutoTimeline(scrollY);
+      iosAutoStartedAt = performance.now();
+    }
     autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
   });
   // Manual scrolling: bounded momentum with continuous content-aware slowdowns.
