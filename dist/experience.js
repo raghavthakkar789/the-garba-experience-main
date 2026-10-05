@@ -161,41 +161,60 @@
   }
 
   function buildIosAutoTimeline(startY) {
-    const end = Math.max(0, root.scrollHeight - innerHeight);
+    // Store semantic progress, not absolute pixels. Safari can resize its visual
+    // viewport or finish image/font layout while Autoscroll is running; mapping
+    // scene progress back to live geometry each frame keeps the timeline stable.
     const segments = [];
-    let y = clamp(startY, 0, end);
+    const currentStoryEnd = journeyTop + travel;
+    let y = clamp(startY, 0, Math.max(0, root.scrollHeight - innerHeight));
 
-    if (cinematic && y < journeyTop + travel) {
-      const storyEnd = journeyTop + travel;
-      for (let i = 0; i < scenes.length && y < storyEnd; i++) {
-        const sceneStart = journeyTop + sceneStarts[i] / storySpan * travel;
-        const sceneEnd = journeyTop + (sceneStarts[i] + sceneSpans[i]) / storySpan * travel;
-        if (sceneEnd <= y) continue;
-        const from = Math.max(y, sceneStart);
-        const to = Math.min(sceneEnd, storyEnd);
-        if (to <= from) continue;
-        const fullDistance = Math.max(1, sceneEnd - sceneStart);
+    if (cinematic && y < currentStoryEnd) {
+      const cursor = clamp((y - journeyTop) / Math.max(1, travel)) * storySpan;
+      let firstIndex = scenes.length - 1;
+      while (firstIndex > 0 && cursor < sceneStarts[firstIndex]) firstIndex--;
+
+      for (let i = firstIndex; i < scenes.length; i++) {
+        const span = sceneSpans[i];
+        const startCursor = sceneStarts[i];
+        const endCursor = startCursor + span;
+        const fromLocal = i === firstIndex
+          ? clamp((cursor - startCursor) / Math.max(.001, span))
+          : 0;
+        const toLocal = 1;
+        if (toLocal <= fromLocal) continue;
+
         const fullDuration = AUTO_SCENE_SECONDS[scenes[i].id] || 3;
-        const duration = fullDuration * ((to - from) / fullDistance);
-        segments.push({ from, to, duration });
-        y = to;
+        segments.push({
+          kind:"story",
+          sceneIndex:i,
+          fromLocal,
+          toLocal,
+          duration:Math.max(.05, fullDuration * (toLocal - fromLocal)),
+        });
       }
     }
 
-    if (y < end) {
-      const finaleStart = journeyTop + travel;
-      const fullFinaleDistance = Math.max(1, end - finaleStart);
-      const from = Math.max(y, Math.min(end, finaleStart));
-      if (from > y) {
-        // Any gap before the finale inherits the same conservative pace.
-        const gapDistance = from - y;
-        segments.push({ from:y, to:from, duration:Math.max(.05, AUTO_FINALE_SECONDS * gapDistance / fullFinaleDistance) });
-        y = from;
-      }
-      if (y < end) {
-        const duration = AUTO_FINALE_SECONDS * ((end - y) / fullFinaleDistance);
-        segments.push({ from:y, to:end, duration:Math.max(.05, duration) });
-      }
+    // Finale progress is also normalized so mobile layout height can change
+    // without invalidating the remaining elapsed-time schedule.
+    const liveEnd = Math.max(0, root.scrollHeight - innerHeight);
+    const liveFinaleStart = journeyTop + travel;
+    if (y >= liveFinaleStart || !cinematic) {
+      const finaleDistance = Math.max(1, liveEnd - liveFinaleStart);
+      const fromLocal = clamp((y - liveFinaleStart) / finaleDistance);
+      if (fromLocal < 1)
+        segments.push({
+          kind:"finale",
+          fromLocal,
+          toLocal:1,
+          duration:Math.max(.05, AUTO_FINALE_SECONDS * (1 - fromLocal)),
+        });
+    } else if (segments.length) {
+      segments.push({
+        kind:"finale",
+        fromLocal:0,
+        toLocal:1,
+        duration:AUTO_FINALE_SECONDS,
+      });
     }
 
     let elapsed = 0;
@@ -204,16 +223,27 @@
       elapsed += segment.duration;
       segment.end = elapsed;
     }
-    return { segments, duration:elapsed, end };
+    return { segments, duration:elapsed };
   }
 
   function iosAutoPositionAt(elapsedSeconds) {
     const timeline = iosAutoTimeline;
-    if (!timeline?.segments?.length) return timeline?.end ?? scrollY;
-    if (elapsedSeconds >= timeline.duration) return timeline.end;
-    const segment = timeline.segments.find(item => elapsedSeconds <= item.end) || timeline.segments[timeline.segments.length - 1];
-    const local = clamp((elapsedSeconds - segment.start) / Math.max(.001, segment.duration));
-    return segment.from + (segment.to - segment.from) * local;
+    const liveEnd = Math.max(0, root.scrollHeight - innerHeight);
+    if (!timeline?.segments?.length) return clamp(scrollY, 0, liveEnd);
+
+    const segment = elapsedSeconds >= timeline.duration
+      ? timeline.segments[timeline.segments.length - 1]
+      : timeline.segments.find(item => elapsedSeconds <= item.end) || timeline.segments[timeline.segments.length - 1];
+    const localTime = clamp((elapsedSeconds - segment.start) / Math.max(.001, segment.duration));
+    const semantic = segment.fromLocal + (segment.toLocal - segment.fromLocal) * localTime;
+
+    if (segment.kind === "story") {
+      const cursor = sceneStarts[segment.sceneIndex] + semantic * sceneSpans[segment.sceneIndex];
+      return clamp(journeyTop + cursor / storySpan * travel, 0, liveEnd);
+    }
+
+    const liveFinaleStart = journeyTop + travel;
+    return clamp(liveFinaleStart + semantic * Math.max(1, liveEnd - liveFinaleStart), 0, liveEnd);
   }
   function advanceAutoScroll(now) {
     if (!autoScrolling) return;
@@ -243,8 +273,9 @@
         if (Math.abs(scrollY - autoScrollPosition) > 1)
           scroller.scrollTop = autoScrollPosition;
 
-        if (elapsedSeconds >= iosAutoTimeline.duration || scrollY >= iosAutoTimeline.end - 1) {
-          jumpTo(iosAutoTimeline.end);
+        const liveEnd = Math.max(0, root.scrollHeight - innerHeight);
+        if (elapsedSeconds >= iosAutoTimeline.duration || scrollY >= liveEnd - 1) {
+          jumpTo(liveEnd);
           stopAutoScroll();
           return;
         }
@@ -1254,7 +1285,7 @@
       } else {
         updateStableViewport(false);
         measure();
-        if (autoScrolling) {
+        if (autoScrolling && !iOSWebKit) {
           autoScrollPosition = scrollY;
           autoScrollLast = performance.now();
         }
@@ -1267,6 +1298,7 @@
     window.visualViewport.addEventListener("resize", () => {
       if (!iOSWebKit) return;
       updateStableViewport(false);
+      measure();
       readingZonesDirty = true;
       schedule();
     }, { passive:true });
