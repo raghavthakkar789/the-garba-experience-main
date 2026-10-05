@@ -143,6 +143,7 @@
   let autoScrolling = false, autoScrollFrame = 0, autoScrollLast = 0, autoScrollPosition = 0;
   let autoWasEntering = false;
   let iosAutoTimeline = null, iosAutoStartedAt = 0, iosAutoLastWrite = 0, iosAutoLastRender = 0;
+  let iosGsapAuto = null;
   function updateAutoScrollButton() {
     autoScrollButton.setAttribute("aria-pressed", String(autoScrolling));
     autoScrollButton.setAttribute("aria-label", autoScrolling ? "Pause automatic scrolling" : "Start automatic scrolling");
@@ -154,6 +155,7 @@
     autoScrolling = false;
     cancelAnimationFrame(autoScrollFrame);
     autoScrollFrame = 0;
+    stopIosGsapAuto();
     iosAutoTimeline = null;
     iosAutoStartedAt = 0;
     iosAutoLastWrite = 0;
@@ -248,12 +250,113 @@
     const liveFinaleStart = journeyTop + travel;
     return clamp(liveFinaleStart + semantic * Math.max(1, liveEnd - liveFinaleStart), 0, liveEnd);
   }
-  function advanceAutoScroll(now) {
+  function iosGsapAvailable() {
+    return iOSWebKit && window.gsap && window.ScrollToPlugin;
+  }
+
+  function stopIosGsapAuto() {
+    if (!iosGsapAuto) return;
+    iosGsapAuto.kill();
+    iosGsapAuto = null;
+  }
+
+  function startIosGsapAuto() {
+    if (!iosGsapAvailable() || !autoScrolling || entryFrame) return false;
+
+    stopIosGsapAuto();
+    window.gsap.registerPlugin(window.ScrollToPlugin);
+
+    // Only this isolated GSAP instance is used for iOS automatic scrolling.
+    // The site's existing scroll-linked animation/render system is untouched.
+    const tl = window.gsap.timeline({
+      defaults:{ ease:"none" },
+      onComplete:() => {
+        iosGsapAuto = null;
+        if (!autoScrolling) return;
+        const liveEnd = Math.max(0, root.scrollHeight - innerHeight);
+        scroller.scrollTop = liveEnd;
+        stopAutoScroll();
+      }
+    });
+
+    const currentY = scrollY;
+    const storyEnd = journeyTop + travel;
+
+    if (cinematic && currentY < storyEnd) {
+      const cursor = clamp((currentY - journeyTop) / Math.max(1, travel)) * storySpan;
+      let first = scenes.length - 1;
+      while (first > 0 && cursor < sceneStarts[first]) first--;
+
+      for (let i = first; i < scenes.length; i++) {
+        const span = sceneSpans[i];
+        const sceneStart = sceneStarts[i];
+        const fromLocal = i === first
+          ? clamp((cursor - sceneStart) / Math.max(.001, span))
+          : 0;
+        const remaining = Math.max(0, 1 - fromLocal);
+        if (!remaining) continue;
+
+        const duration = (AUTO_SCENE_SECONDS[scenes[i].id] || 3) * remaining;
+        tl.to(window, {
+          duration,
+          scrollTo:{
+            y:() => {
+              const liveCursor = sceneStart + span;
+              return clamp(
+                journeyTop + liveCursor / storySpan * travel,
+                0,
+                Math.max(0, root.scrollHeight - innerHeight),
+              );
+            },
+            autoKill:false,
+          },
+        });
+      }
+    }
+
+    const liveEnd = Math.max(0, root.scrollHeight - innerHeight);
+    const finaleStart = journeyTop + travel;
+    const finaleDistance = Math.max(1, liveEnd - finaleStart);
+    const finaleLocal = clamp((Math.max(scrollY, finaleStart) - finaleStart) / finaleDistance);
+    if (finaleLocal < 1) {
+      tl.to(window, {
+        duration:Math.max(.05, AUTO_FINALE_SECONDS * (1 - finaleLocal)),
+        scrollTo:{
+          y:() => Math.max(0, root.scrollHeight - innerHeight),
+          autoKill:false,
+        },
+      });
+    }
+
+    if (!tl.duration()) {
+      tl.kill();
+      return false;
+    }
+
+    iosGsapAuto = tl;
+    return true;
+  }
+
+    function advanceAutoScroll(now) {
     if (!autoScrolling) return;
     if (document.hidden || document.querySelector("dialog[open]")) { stopAutoScroll(); return; }
 
-    // iOS uses a deterministic elapsed-time timeline. Dropped frames no longer
-    // accumulate scroll error; each paint recomputes the exact expected position.
+    // On iOS, prefer GSAP ScrollToPlugin for programmatic Autoscroll.
+    // Manual/native scrolling and all existing scene rendering remain unchanged.
+    if (iOSWebKit && iosGsapAvailable()) {
+      if (entryFrame) {
+        stopIosGsapAuto();
+        autoScrollPosition = scrollY;
+        autoWasEntering = true;
+        autoScrollFrame = requestAnimationFrame(advanceAutoScroll);
+        return;
+      }
+      autoWasEntering = false;
+      if (!iosGsapAuto) startIosGsapAuto();
+      return;
+    }
+
+    // Fallback only if GSAP/ScrollToPlugin failed to load.
     if (iOSWebKit) {
       if (entryFrame) {
         autoScrollPosition = scrollY;
@@ -341,6 +444,7 @@
     if (!entryUnlocked || (!cinematic && !readingBoxOpen)) beginEntry();
     if (scrollY >= root.scrollHeight - innerHeight - 1) return;
     autoScrolling = true;
+    stopIosGsapAuto();
     autoWasEntering = Boolean(entryFrame);
     autoScrollPosition = scrollY;
     autoScrollLast = performance.now();
@@ -1078,6 +1182,7 @@
   }
   function setMotion(preservePlace = false) {
     cancelManualScroll();
+    if (iOSWebKit && autoScrolling) stopIosGsapAuto();
     const wasAutoScrolling = autoScrolling;
     const wasEntering = Boolean(entryFrame);
     const previous = activeIndex;
