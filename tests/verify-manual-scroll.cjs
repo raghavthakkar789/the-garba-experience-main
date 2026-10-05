@@ -1,6 +1,9 @@
 /* Browser regression: bounded continuous manual scrolling with reading-area slowdowns. */
 const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path');
 const {chromium}=require('playwright');
+const source=fs.readFileSync(path.resolve(__dirname,'../dist/experience.js'),'utf8');
+assert(source.includes('manualVelocity'),'manual scrolling uses a velocity-based soft controller');
+assert(source.includes('Math.exp(-dt / .22)'),'manual scrolling ramps acceleration/deceleration smoothly');
 let browser,server;
 (async()=>{
  const root=path.resolve(__dirname,'../dist');
