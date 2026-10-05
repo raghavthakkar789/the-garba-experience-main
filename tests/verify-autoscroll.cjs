@@ -11,6 +11,10 @@ assert(source.includes('const writeInterval = (lowPowerRender || longFrameScore 
 assert(source.includes('autoScrolling ? 360 : 72'),'iOS autoscroll heavily reduces dialogue layout frequency');
 assert(source.includes('? 80 : 50'),'iOS autoscroll uses 20Hz writes and 12.5Hz fallback');
 assert(source.includes('ios-autoscroll-safe'),'iOS autoscroll enables a temporary compositing safety mode');
+assert(source.includes('startIosGsapAuto'),'iOS Autoscroll has a GSAP ScrollTo path');
+assert(source.includes('iOSWebKit && iosGsapAvailable()'),'GSAP Autoscroll is isolated to iOS');
+assert(source.includes('autoKill:false'),'GSAP ScrollTo is configured not to self-cancel');
+assert(source.includes('Fallback only if GSAP/ScrollToPlugin failed to load'),'custom iOS engine remains a fallback');
 assert(source.includes('if (iOSWebKit)'),'iOS has a dedicated autoscroll path');
 let browser,server;
 (async()=>{
